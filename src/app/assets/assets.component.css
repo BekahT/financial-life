@@ -1,0 +1,15 @@
+#nameInput {
+  width: 230px;
+}
+
+#valueInput {
+  width: 150px;
+}
+
+#noteInput {
+  width: 350px;
+}
+
+.assetTable {
+  width: 100%;
+}
