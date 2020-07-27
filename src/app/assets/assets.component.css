@@ -1,15 +1,19 @@
-#nameInput {
-  width: 230px;
-}
-
-#valueInput {
-  width: 150px;
-}
-
-#noteInput {
-  width: 350px;
-}
-
-.assetTable {
+.form-inline, .input, .assetTable {
   width: 100%;
+}
+
+.name {
+  width: 23%;
+}
+
+.value {
+  width: 15%;
+}
+
+.category {
+  width: 17%;
+}
+
+.note {
+  width: 30%;
 }
