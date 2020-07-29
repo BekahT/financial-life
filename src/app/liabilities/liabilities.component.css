@@ -1,0 +1,15 @@
+.form-inline, .input, .liabilityTable {
+  width: 100%;
+}
+
+.name {
+  width: 18%;
+}
+
+.value, .category {
+  width: 15%;
+}
+
+.note {
+  width: 20%;
+}

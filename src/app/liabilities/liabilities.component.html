@@ -1,6 +1,88 @@
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1 class="display-4">LIABILTIES COMPONENT</h1>
-  </div>
-</div>
+<h2>Liabilities Tracker</h2>
 
+<form class="form-inline mb-2" autocomplete="off" [formGroup]="newLiabilityForm">
+  <div class="form-group name">
+    <mat-form-field class="input">
+      <mat-label>Name</mat-label>
+      <input matInput type="text" formControlName="name" matTooltip="The name of the liability, such as 'My Honda Civic'.">
+      <mat-error *ngIf="!newLiabilityForm.get('name').valid">{{getError('name')}}</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="form-group mx-2 balance">
+    <mat-form-field class="input">
+      <mat-label>Balance</mat-label>
+      <input matInput type="number" formControlName="balance" step="0.01" min="0.01" matTooltip="The current outstanding balance of the liability in US Dollars.">
+      <span matPrefix>$&nbsp;</span>
+      <mat-error *ngIf="!newLiabilityForm.get('balance').valid">{{getError('balance')}}</mat-error>
+    </mat-form-field>
+  </div>
+  <div class="form-group category">
+    <mat-form-field class="input">
+      <mat-label>Category</mat-label>
+      <mat-select formControlName="category" matTooltip="The type of liability.">
+        <mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
+      </mat-select>
+      <mat-error *ngIf="!newLiabilityForm.get('category').valid">{{getError('category')}}</mat-error>
+    </mat-form-field>
+  </div>  
+  <div class="form-group mx-2">
+    <mat-form-field>
+      <mat-label>Select a Due Date</mat-label>
+      <input matInput [matDatepicker]="picker" formControlName="dueDate" matTooltip="The date the final payment is due or when you expect to pay off the balance.">
+      <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+      <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+  </div>
+  <div class="form-group mr-2 note">
+    <mat-form-field class="input">
+      <mat-label>Note</mat-label>
+      <input matInput type="text" formControlName="note" matTooltip="Any additional information about the liability.">
+    </mat-form-field>
+  </div>  
+  <div>
+    <button type="submit" mat-raised-button color="primary" 
+    (click)="submitForm()" [disabled]="!newLiabilityForm.valid">Add Liability</button>
+  </div>  
+</form>
+
+
+<table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 liabilityTable mb-4">
+  <!-- Category Column -->
+  <ng-container matColumnDef="category">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Category </th>
+    <td mat-cell *matCellDef="let liability"> {{liability.category}} </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <!-- Name Column -->
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
+    <td mat-cell *matCellDef="let liability"> {{liability.name}} </td>
+    <td mat-footer-cell *matFooterCellDef> Total </td>
+  </ng-container>
+
+  <!-- Balance Column -->
+  <ng-container matColumnDef="balance">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Balance </th>
+    <td mat-cell *matCellDef="let liability"> {{liability.balance | currency}} </td>
+    <td mat-footer-cell *matFooterCellDef> {{getTotalBalance() | currency}} </td>
+  </ng-container>
+
+  <!-- Due Date Column -->
+  <ng-container matColumnDef="dueDate">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Due Date </th>
+    <td mat-cell *matCellDef="let liability"> {{liability.dueDate | date:'yyyy-MM-dd'}} </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <!-- Note Column -->
+  <ng-container matColumnDef="note">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header> Note </th>
+    <td mat-cell *matCellDef="let liability"> {{liability.note}} </td>
+    <td mat-footer-cell *matFooterCellDef></td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  <tr mat-footer-row *matFooterRowDef="displayedColumns"></tr>
+</table>

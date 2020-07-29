@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
-import {MatSort} from '@angular/material/sort';
+import { MatSort } from '@angular/material/sort';
 
 import { Asset } from './asset.model';
 
@@ -18,7 +18,9 @@ export class AssetsComponent implements OnInit {
   categories: string[] = ['Savings', 'Checking', 'CD', '401k', 'HSA', 'Other'];
   assets: Asset[] = [
     new Asset("Emergency Fund", 15000.00, "Savings", "3 months of expenses"),
-    new Asset("Taxes & Insurance", 400.62, "Savings", "Updated in July")
+    new Asset("Taxes & Insurance", 400.62, "Checking", "Updated in July"),
+    new Asset("My 401k", 25000, "401k", "Current Employer"),
+    new Asset("My HSA", 3500.75, "HSA")
   ];
 
   newAssetForm = new FormGroup({
@@ -42,8 +44,11 @@ export class AssetsComponent implements OnInit {
   submitForm() {
     const newAsset: Asset = this.newAssetForm.value;
     this.assets.push(newAsset);
+    this.newAssetForm.reset();
+
     // Update the table to include the new asset
     this.dataSource = new MatTableDataSource(this.assets);
+    this.dataSource.sort = this.sort;
   }
 
   getTotalValue() {

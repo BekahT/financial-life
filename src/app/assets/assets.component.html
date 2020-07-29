@@ -1,15 +1,18 @@
+<h2>Assets Tracker</h2>
+
 <form class="form-inline mb-2" autocomplete="off" [formGroup]="newAssetForm">
   <div class="form-group name">
     <mat-form-field class="input">
       <mat-label>Name</mat-label>
-      <input matInput type="text" formControlName="name">
+      <input matInput type="text" formControlName="name" 
+      matTooltip="The name of the asset, such as 'Emergency Fund'.">
       <mat-error *ngIf="!newAssetForm.get('name').valid">{{getError('name')}}</mat-error>
     </mat-form-field>
   </div>
   <div class="form-group mx-2 value">
     <mat-form-field class="input">
       <mat-label>Value</mat-label>
-      <input matInput type="number" formControlName="value" step="0.01" min="0.01">
+      <input matInput type="number" formControlName="value" step="0.01" min="0.01" matTooltip="The current value of the asset in US Dollars.">
       <span matPrefix>$&nbsp;</span>
       <mat-error *ngIf="!newAssetForm.get('value').valid">{{getError('value')}}</mat-error>
     </mat-form-field>
@@ -17,7 +20,7 @@
   <div class="form-group category">
     <mat-form-field class="input">
       <mat-label>Category</mat-label>
-      <mat-select formControlName="category">
+      <mat-select formControlName="category" matTooltip="The type of asset or account that holds the asset.">
         <mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
       </mat-select>
       <mat-error *ngIf="!newAssetForm.get('category').valid">{{getError('category')}}</mat-error>
@@ -26,7 +29,7 @@
   <div class="form-group mx-2 note">
     <mat-form-field class="input">
       <mat-label>Note</mat-label>
-      <input matInput type="text" formControlName="note">
+      <input matInput type="text" formControlName="note" matTooltip="Any additional information about the asset.">
     </mat-form-field>
   </div>
   <div>
