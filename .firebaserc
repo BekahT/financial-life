@@ -1,5 +1,14 @@
 {
   "projects": {
     "default": "myfinanciallife"
+  },
+  "targets": {
+    "daviddocuber": {
+      "hosting": {
+        "financial-life": [
+          "daviddocuber"
+        ]
+      }
+    }
   }
 }

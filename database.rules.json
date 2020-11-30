@@ -3,5 +3,13 @@
   "rules": {
     ".read": false,
     ".write": false
+
+    // "assets": {
+    //   "name" : {".validate": "newData.isString()"},
+    //   "value" : {".validate": "newData.isNumber()"},
+    //   "category" : {".validate": "newData.val().matches(/(Savings|Checking|CD|401k|HSA|Other)/)"},
+    //   "note" : {".validate": true},
+    //   "$other" : {".validate": false}
+  	// }
   }
 }
