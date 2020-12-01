@@ -4,6 +4,7 @@ export class Liability {
     public balance: number,
     public category: string,
     public dueDate?: any,
-    public note?: string
+    public note?: string,
+    public id?: string
   ) { }
 }

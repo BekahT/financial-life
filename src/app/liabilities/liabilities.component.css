@@ -13,3 +13,7 @@
 .note {
   width: 20%;
 }
+
+.action-button-container {
+  display: inline;
+}

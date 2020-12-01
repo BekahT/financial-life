@@ -15,14 +15,12 @@ import { Subscription } from 'rxjs';
 export class LiabilitiesComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
-  displayedColumns: string[] = ['category', 'name', 'balance', 'dueDate', 'note'];
+  displayedColumns: string[] = ['category', 'name', 'balance', 'dueDate', 'note', 'actions'];
   dataSource: MatTableDataSource<Liability>;
   categories: string[] = ['Mortgage', 'Auto Loan', 'Student Loan', 'Credit Card', 'Other'];
-  liabilities: Liability[] = [
-    // new Liability("Townhouse", 250000.00, "Mortgage", new Date("11/15/2027")),
-    // new Liability("My Car", 5700.00, "Auto Loan", new Date("10/02/2022")),
-    // new Liability("Software Degree", 5400.74, "Student Loan")
-  ];
+  liabilities: Liability[] = [];
+  editMode: Boolean = false;
+  editId: string;
 
   liabilitySubscription: Subscription;
 
@@ -37,8 +35,13 @@ export class LiabilitiesComponent implements OnInit {
   constructor(private fireDatabase: AngularFireDatabase) { }
 
   ngOnInit(): void {
-    this.liabilitySubscription = this.fireDatabase.list("liabilities").valueChanges().subscribe((res) => {
-      this.liabilities = res as Liability[];
+    this.liabilitySubscription = this.fireDatabase.list("liabilities").snapshotChanges().subscribe((res) => {
+      this.liabilities = []; // clear the old liabilities array
+      res.forEach((liability) => {
+        let newLiability = liability.payload.val() as Liability;
+        newLiability.id = liability.key;
+        this.liabilities.push(newLiability);
+      });
       this.dataSource = new MatTableDataSource(this.liabilities);
       this.dataSource.sort = this.sort;
     });
@@ -53,17 +56,55 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   submitForm() {
-    let newLiability: Liability = this.newLiabilityForm.value;
-    if (newLiability.dueDate) {
-      newLiability.dueDate = newLiability.dueDate.getTime();
-    }
+    const liability: Liability = this.newLiabilityForm.value;
     const liabilitiesRef = this.fireDatabase.list('liabilities');
-    liabilitiesRef.push(newLiability);
+
+    if (liability.dueDate) {
+      liability.dueDate = liability.dueDate.getTime();
+    }
+    // Firebase doesn't take null/undefined, so set empty notes to empty string
+    if (liability.note === undefined) {
+      liability.note = "";
+    }
+
+    if (this.editMode === false) {
+      liabilitiesRef.push(liability);
+    } else if (this.editMode === true) {
+      liabilitiesRef.set(this.editId, liability);
+      // Reset the edit variables
+      this.editId = null;
+      this.editMode = false;
+    }
     this.newLiabilityForm.reset();
   }
 
   getTotalBalance() {
     return this.liabilities.map(t => t.balance).reduce((acc, balance) => acc + balance, 0);
+  }
+
+  onEdit(id: string, liability: Liability) {
+    // Set edit variables
+    this.editMode = true;
+    this.editId = id;
+
+    let dueDate: Date;
+    // Format the due date so it appears in the form
+    if(liability.dueDate) {
+      dueDate = new Date(liability.dueDate);
+    }
+
+    // Fill in the form with liability to edit
+    this.newLiabilityForm.patchValue({
+      name: liability.name,
+      balance: liability.balance,
+      category: liability.category,
+      dueDate: dueDate,
+      note: liability.note
+    });
+  }
+
+  onDelete(id: string) {
+    this.fireDatabase.list('liabilities').remove(id);
   }
 
 }
