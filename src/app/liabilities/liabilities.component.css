@@ -2,12 +2,12 @@
   width: 100%;
 }
 
-.name {
-  width: 18%;
+.name, .balance {
+  width: 15%;
 }
 
-.value, .category {
-  width: 15%;
+.category, .interestRate {
+  width: 10%;
 }
 
 .note {

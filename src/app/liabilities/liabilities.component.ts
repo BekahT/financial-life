@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs';
 export class LiabilitiesComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
-  displayedColumns: string[] = ['category', 'name', 'balance', 'dueDate', 'note', 'actions'];
+  displayedColumns: string[] = ['category', 'name', 'balance', 'dueDate', 'interestRate', 'note', 'actions'];
   dataSource: MatTableDataSource<Liability>;
   categories: string[] = ['Mortgage', 'Auto Loan', 'Student Loan', 'Credit Card', 'Other'];
   liabilities: Liability[] = [];
@@ -29,6 +29,7 @@ export class LiabilitiesComponent implements OnInit {
     balance: new FormControl('', Validators.required),
     category: new FormControl('', Validators.required),
     dueDate: new FormControl(''),
+    interestRate: new FormControl(''),
     note: new FormControl('')
   });
 
@@ -101,6 +102,7 @@ export class LiabilitiesComponent implements OnInit {
       balance: liability.balance,
       category: liability.category,
       dueDate: dueDate,
+      interestRate: liability.interestRate,
       note: liability.note
     });
   }
