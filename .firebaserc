@@ -3,10 +3,10 @@
     "default": "myfinanciallife"
   },
   "targets": {
-    "daviddocuber": {
+    "myfinanciallife": {
       "hosting": {
         "financial-life": [
-          "daviddocuber"
+          "myfinanciallife"
         ]
       }
     }
