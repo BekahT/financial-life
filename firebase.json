@@ -4,18 +4,12 @@
   },
   "hosting": [
     {
+      "target": "financial-life",
       "public": "dist/financial-life",
       "ignore": [
         "firebase.json",
         "**/.*",
         "**/node_modules/**"
-      ]
-    },
-    {
-      "target": "financial-life",
-      "public": "dist/financial-life",
-      "ignore": [
-        "**/.*"
       ],
       "headers": [
         {
