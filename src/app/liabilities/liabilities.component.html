@@ -40,8 +40,16 @@
     </mat-form-field>
   </div>
   <div>
-    <button type="submit" mat-raised-button color="primary"
-    (click)="submitForm()" [disabled]="!newLiabilityForm.valid">Save Liability</button>
+    <button class="mr-3" type="submit" mat-raised-button color="primary" matTooltip="Save Liability"
+    matTooltipPosition="above" (click)="submitForm()" [disabled]="!newLiabilityForm.valid">
+      <mat-icon>save</mat-icon>
+    </button>
+  </div>
+  <div>
+    <button type="reset" mat-raised-button color="warn" matTooltip="Clear Form"
+    matTooltipPosition="above" (click)="onReset()">
+      <mat-icon>clear</mat-icon>
+    </button>
   </div>
 </form>
 

@@ -93,4 +93,11 @@ export class AssetsComponent implements OnInit {
   onDelete(id: string) {
     this.fireDatabase.list('assets').remove(id);
   }
+
+  onReset() {
+    // Reset the edit variables
+    this.editId = null;
+    this.editMode = false;
+    this.newAssetForm.reset();
+  }
 }

@@ -61,6 +61,8 @@ export class LiabilitiesComponent implements OnInit {
 
     if (liability.dueDate) {
       liability.dueDate = liability.dueDate.getTime();
+    } else {
+      liability.dueDate = "";
     }
     // Firebase doesn't take null/undefined, so set empty notes to empty string
     if (liability.note === undefined) {
@@ -105,6 +107,13 @@ export class LiabilitiesComponent implements OnInit {
 
   onDelete(id: string) {
     this.fireDatabase.list('liabilities').remove(id);
+  }
+
+  onReset() {
+    // Reset the edit variables
+    this.editId = null;
+    this.editMode = false;
+    this.newLiabilityForm.reset();
   }
 
 }
