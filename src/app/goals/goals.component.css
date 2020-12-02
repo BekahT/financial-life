@@ -1,0 +1,7 @@
+.form-inline, .input {
+  width: 100%;
+}
+
+.category, .source, .amount, .completionDate {
+  width: 15%;
+}
