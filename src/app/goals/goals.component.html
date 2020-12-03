@@ -4,7 +4,8 @@
   <div class="form-group category">
     <mat-form-field class="input">
       <mat-label>Category</mat-label>
-      <mat-select #category formControlName="category" (valueChange)='onChange(category.value)' matTooltip="Whether this is a savings or debt payoff goal.">
+      <mat-select #category formControlName="category" (valueChange)="onCategory(category.value)"
+        matTooltip="Whether this is a savings or debt payoff goal.">
         <mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
       </mat-select>
       <mat-error *ngIf="!newGoalForm.get('category').valid">{{getError('category')}}</mat-error>
@@ -13,7 +14,7 @@
   <div class="form-group mx-2 source">
     <mat-form-field class="input">
       <mat-label>Source</mat-label>
-      <mat-select formControlName="source" matTooltip="The asset or liability that will be the source of this goal.">
+      <mat-select #source formControlName="source" (valueChange)="onSource(source.value)" matTooltip="The asset or liability that will be the source of this goal.">
         <mat-option *ngFor="let source of sources" [value]="source">{{ source }}</mat-option>
       </mat-select>
       <mat-error *ngIf="!newGoalForm.get('source').valid">{{getError('source')}}</mat-error>
@@ -21,8 +22,9 @@
   </div>
   <div class="form-group amount">
     <mat-form-field class="input">
-      <mat-label>Amount</mat-label>
-      <input matInput type="number" formControlName="amount" step="0.01" min="0.01" matTooltip="The monthly amount to be budgeted towards this goal.">
+      <mat-label>Monthly Amount</mat-label>
+      <input matInput type="number" formControlName="amount" step="0.01" min="0.01"
+        matTooltip="The monthly amount to be budgeted towards this goal.">
       <span matPrefix>$&nbsp;</span>
       <mat-error *ngIf="!newGoalForm.get('amount').valid">{{getError('amount')}}</mat-error>
     </mat-form-field>
@@ -30,20 +32,21 @@
   <div class="form-group mx-2 completionDate">
     <mat-form-field class="input">
       <mat-label>Completion Date</mat-label>
-      <input matInput [matDatepicker]="picker" formControlName="completionDate" matTooltip="The estimated completion or payoff date.">
+      <input matInput [matDatepicker]="picker" formControlName="completionDate"
+        matTooltip="The estimated completion or payoff date.">
       <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
       <mat-datepicker #picker></mat-datepicker>
     </mat-form-field>
   </div>
   <div>
     <button class="mr-3" type="submit" mat-raised-button color="primary" matTooltip="Save Asset"
-    matTooltipPosition="above" (click)="submitForm()" [disabled]="!newGoalForm.valid">
+      matTooltipPosition="above" (click)="submitForm()" [disabled]="!newGoalForm.valid">
       <mat-icon>save</mat-icon>
     </button>
   </div>
   <div>
-    <button type="reset" mat-raised-button color="warn" matTooltip="Clear Form"
-    matTooltipPosition="above" (click)="onReset()">
+    <button type="reset" mat-raised-button color="warn" matTooltip="Clear Form" matTooltipPosition="above"
+      (click)="onReset()">
       <mat-icon>clear</mat-icon>
     </button>
   </div>

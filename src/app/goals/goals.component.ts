@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { FirebaseService } from '../shared/services/firebase.service';
 
 import { Goal } from './goal.model';
-import { Subscription } from 'rxjs';
 import { Asset } from '../assets/asset.model';
 import { Liability } from '../liabilities/liability.model';
 
@@ -22,22 +21,21 @@ export class GoalsComponent implements OnInit {
 
   categories: string[] = ['Savings', 'Debt Payoff'];
   selectedCategory: string;
+  selectedSource: string;
   sources: string[] = [];
   assets: Asset[] = [];
   liabilities: Liability[] = [];
 
-  assetSubscription: Subscription;
-  liabilitiesSubscription: Subscription;
+  assetsRef = this.dbs.db.collection('assets');
+  liabilitesRef = this.dbs.db.collection('liabilities');
 
-  constructor(private fireDatabase: AngularFireDatabase) { }
+
+  constructor(private dbs: FirebaseService) { }
 
   ngOnInit(): void {
   }
 
-  ngOnDestroy(): void {
-    this.assetSubscription.unsubscribe();
-    this.liabilitiesSubscription.unsubscribe();
-  }
+  ngOnDestroy(): void {}
 
   getError(control: string) {
     return this.newGoalForm.get(control).hasError('required') ? 'Please enter a value' : '';
@@ -53,28 +51,44 @@ export class GoalsComponent implements OnInit {
     this.newGoalForm.reset();
   }
 
-  onChange(category: string) {
+  onCategory(category: string) {
     this.selectedCategory = category;
     if (this.selectedCategory === 'Savings') {
+      this.sources = []; // Clear the old array
       // fetch assets names
-      this.assetSubscription = this.fireDatabase.list("assets").snapshotChanges().subscribe((res) => {
-        this.sources = []; // clear the old array
-        res.forEach((asset) => {
-          let newAsset = asset.payload.val() as Asset;
-          this.assets.push(newAsset);
-          this.sources.push(newAsset.name);
+      let that = this;
+      this.assetsRef.get().then((querySnapshot) => {
+        querySnapshot.forEach(function(asset) {
+          let newAsset = asset.data() as Asset;
+          that.assets.push(newAsset);
+          that.sources.push(newAsset.name);
         });
       });
+
     } else if (this.selectedCategory === 'Debt Payoff') {
+      this.sources = []; // Clear the old array
       // fetch liabilities names
-      this.liabilitiesSubscription = this.fireDatabase.list("liabilities").snapshotChanges().subscribe((res) => {
-        this.sources = []; // clear the old array
-        res.forEach((asset) => {
-          let newLiability = asset.payload.val() as Liability;
-          this.liabilities.push(newLiability);
-          this.sources.push(newLiability.name);
+      let that = this;
+      this.liabilitesRef.get().then((querySnapshot) => {
+        querySnapshot.forEach(function(liability) {
+          let newLiability = liability.data() as Liability;
+          that.liabilities.push(newLiability);
+          that.sources.push(newLiability.name);
         });
       });
+    }
+  }
+
+  onSource(source: string) {
+    this.selectedSource = source;
+    if(this.selectedCategory === 'Debt Payoff') {
+      // Set the completion date to the due date of the debt
+      let selectedLiability = this.liabilities.find(element => element.name === this.selectedSource);
+      if (selectedLiability.dueDate !== "") {
+        this.newGoalForm.patchValue({
+          completionDate: new Date(selectedLiability.dueDate)
+        });
+      }
     }
   }
 
