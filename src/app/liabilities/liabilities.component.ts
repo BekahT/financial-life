@@ -2,10 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { FirebaseService } from '../shared/services/firebase.service';
 
 import { Liability } from './liability.model';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-liabilities',
@@ -22,7 +21,7 @@ export class LiabilitiesComponent implements OnInit {
   editMode: Boolean = false;
   editId: string;
 
-  liabilitySubscription: Subscription;
+  liabilitiesRef = this.dbs.db.collection('liabilities');
 
   newLiabilityForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -33,23 +32,19 @@ export class LiabilitiesComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private fireDatabase: AngularFireDatabase) { }
+  constructor(private dbs: FirebaseService) { }
 
   ngOnInit(): void {
-    this.liabilitySubscription = this.fireDatabase.list("liabilities").snapshotChanges().subscribe((res) => {
+    this.liabilitiesRef.onSnapshot((res) => {
       this.liabilities = []; // clear the old liabilities array
       res.forEach((liability) => {
-        let newLiability = liability.payload.val() as Liability;
-        newLiability.id = liability.key;
+        let newLiability = liability.data() as Liability;
+        newLiability.id = liability.id;
         this.liabilities.push(newLiability);
       });
       this.dataSource = new MatTableDataSource(this.liabilities);
       this.dataSource.sort = this.sort;
     });
-  }
-
-  ngOnDestroy(): void {
-    this.liabilitySubscription.unsubscribe();
   }
 
   getError(control: string) {
@@ -58,7 +53,6 @@ export class LiabilitiesComponent implements OnInit {
 
   submitForm() {
     const liability: Liability = this.newLiabilityForm.value;
-    const liabilitiesRef = this.fireDatabase.list('liabilities');
 
     if (liability.dueDate) {
       liability.dueDate = liability.dueDate.getTime();
@@ -71,9 +65,9 @@ export class LiabilitiesComponent implements OnInit {
     }
 
     if (this.editMode === false) {
-      liabilitiesRef.push(liability);
+      this.liabilitiesRef.add(liability);
     } else if (this.editMode === true) {
-      liabilitiesRef.set(this.editId, liability);
+      this.liabilitiesRef.doc(this.editId).set(liability);
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;
@@ -108,7 +102,7 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   onDelete(id: string) {
-    this.fireDatabase.list('liabilities').remove(id);
+    this.liabilitiesRef.doc(id).delete();
   }
 
   onReset() {

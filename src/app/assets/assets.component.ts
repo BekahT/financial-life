@@ -2,10 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { AngularFireDatabase } from '@angular/fire/database';
+import { FirebaseService } from '../shared/services/firebase.service';
 
 import { Asset } from './asset.model';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-assets',
@@ -22,7 +21,7 @@ export class AssetsComponent implements OnInit {
   editMode: Boolean = false;
   editId: string;
 
-  assetSubscription: Subscription;
+  assetsRef = this.dbs.db.collection('assets');
 
   newAssetForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -31,23 +30,19 @@ export class AssetsComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private fireDatabase: AngularFireDatabase) { }
+  constructor(private dbs: FirebaseService) { }
 
   ngOnInit(): void {
-    this.assetSubscription = this.fireDatabase.list("assets").snapshotChanges().subscribe((res) => {
+    this.assetsRef.onSnapshot((res) => {
       this.assets = []; // clear the old asset array
       res.forEach((asset) => {
-        let newAsset = asset.payload.val() as Asset;
-        newAsset.id = asset.key;
+        let newAsset = asset.data() as Asset;
+        newAsset.id = asset.id;
         this.assets.push(newAsset);
       });
       this.dataSource = new MatTableDataSource(this.assets);
       this.dataSource.sort = this.sort;
     });
-  }
-
-  ngOnDestroy(): void {
-    this.assetSubscription.unsubscribe();
   }
 
   getError(control: string) {
@@ -56,16 +51,15 @@ export class AssetsComponent implements OnInit {
 
   submitForm() {
     const asset: Asset = this.newAssetForm.value;
-    const assetsRef = this.fireDatabase.list('assets');
     // Firebase doesn't take null/undefined, so set empty notes to empty string
     if (asset.note === undefined) {
       asset.note = "";
     }
 
     if (this.editMode === false) {
-      assetsRef.push(asset);
+      this.assetsRef.add(asset);
     } else if (this.editMode === true) {
-      assetsRef.set(this.editId, asset);
+      this.assetsRef.doc(this.editId).set(asset);
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;
@@ -91,7 +85,7 @@ export class AssetsComponent implements OnInit {
   }
 
   onDelete(id: string) {
-    this.fireDatabase.list('assets').remove(id);
+    this.assetsRef.doc(id).delete();
   }
 
   onReset() {

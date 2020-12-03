@@ -5,6 +5,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from './material.module';
 import { AngularFireModule } from '@angular/fire';
+import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
 
 
@@ -36,6 +37,7 @@ import { environment } from 'src/environments/environment';
     BrowserAnimationsModule,
     MaterialModule,
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFirestoreModule,
     AngularFireAnalyticsModule
   ],
   providers: [],
