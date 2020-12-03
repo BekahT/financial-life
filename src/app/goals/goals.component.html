@@ -4,8 +4,7 @@
   <div class="form-group category">
     <mat-form-field class="input">
       <mat-label>Category</mat-label>
-      <mat-select #category formControlName="category" (valueChange)="onCategory(category.value)"
-        matTooltip="Whether this is a savings or debt payoff goal.">
+      <mat-select formControlName="category" matTooltip="Whether this is a savings or debt payoff goal.">
         <mat-option *ngFor="let category of categories" [value]="category">{{ category }}</mat-option>
       </mat-select>
       <mat-error *ngIf="!newGoalForm.get('category').valid">{{getError('category')}}</mat-error>
@@ -14,7 +13,7 @@
   <div class="form-group mx-2 source">
     <mat-form-field class="input">
       <mat-label>Source</mat-label>
-      <mat-select #source formControlName="source" (valueChange)="onSource(source.value)" matTooltip="The asset or liability that will be the source of this goal.">
+      <mat-select formControlName="source" matTooltip="The asset or liability that will be the source of this goal.">
         <mat-option *ngFor="let source of sources" [value]="source">{{ source }}</mat-option>
       </mat-select>
       <mat-error *ngIf="!newGoalForm.get('source').valid">{{getError('source')}}</mat-error>
@@ -24,7 +23,7 @@
     <mat-form-field class="input">
       <mat-label>Monthly Amount</mat-label>
       <input matInput type="number" formControlName="amount" step="0.01" min="0.01"
-        matTooltip="The monthly amount to be budgeted towards this goal.">
+       matTooltip="The monthly amount to be budgeted towards this goal.">
       <span matPrefix>$&nbsp;</span>
       <mat-error *ngIf="!newGoalForm.get('amount').valid">{{getError('amount')}}</mat-error>
     </mat-form-field>
@@ -51,3 +50,7 @@
     </button>
   </div>
 </form>
+
+<div *ngIf="payoffError" class="alert alert-warning" role="alert">
+  {{ payoffError }}
+</div>
