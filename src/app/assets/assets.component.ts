@@ -75,10 +75,10 @@ export class AssetsComponent implements OnInit {
     return this.assets.map(t => t.value).reduce((acc, value) => acc + value, 0);
   }
 
-  onEdit(id: string, asset: Asset) {
+  onEdit(asset: Asset) {
     // Set edit variables
     this.editMode = true;
-    this.editId = id;
+    this.editId = asset.id;
     // Fill in the form with asset to edit
     this.newAssetForm.patchValue({
       name: asset.name,

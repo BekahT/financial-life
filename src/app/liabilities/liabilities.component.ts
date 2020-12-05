@@ -83,10 +83,10 @@ export class LiabilitiesComponent implements OnInit {
     return this.liabilities.map(t => t.balance).reduce((acc, balance) => acc + balance, 0);
   }
 
-  onEdit(id: string, liability: Liability) {
+  onEdit(liability: Liability) {
     // Set edit variables
     this.editMode = true;
-    this.editId = id;
+    this.editId = liability.id;
 
     let dueDate: Date;
     // Format the due date so it appears in the form

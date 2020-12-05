@@ -22,24 +22,64 @@ export class GoalsComponent implements OnInit, OnDestroy {
     completionDate: new FormControl(''),
   });
 
+  goals: Goal[] = [];
+
   categories: string[] = ['Savings', 'Debt Payoff'];
   selectedCategory: string;
-  selectedSource: string;
+
   sources: string[] = [];
+  selectedSource: string;
+
   assets: Asset[] = [];
+  selectedAsset: Asset;
+
   liabilities: Liability[] = [];
   selectedLiability: Liability;
+
   payoffError: string;
 
+  editMode: Boolean = false;
+  editId: string;
+
   assetsRef = this.dbs.db.collection('assets');
-  liabilitesRef = this.dbs.db.collection('liabilities');
+  liabilitiesRef = this.dbs.db.collection('liabilities');
+  goalsRef = this.dbs.db.collection('goals');
 
   compDest: Subject<any> = new Subject;
-
 
   constructor(private dbs: FirebaseService) { }
 
   ngOnInit(): void {
+    // Get all the assets from the db
+    this.assetsRef.onSnapshot((res) => {
+      this.assets = []; // clear the old asset array
+      res.forEach((asset) => {
+        let newAsset = asset.data() as Asset;
+        newAsset.id = asset.id;
+        this.assets.push(newAsset);
+      });
+    });
+
+    // Get all the liabilties from the db
+    this.liabilitiesRef.onSnapshot((res) => {
+      this.liabilities = []; // clear the old liabilities array
+      res.forEach((liability) => {
+        let newLiability = liability.data() as Liability;
+        newLiability.id = liability.id;
+        this.liabilities.push(newLiability);
+      });
+    });
+
+    // Get all the goals from the db
+    this.goalsRef.onSnapshot((res) => {
+      this.goals = []; // clear the old goals array
+      res.forEach((goal) => {
+        let newGoal = goal.data() as Goal;
+        newGoal.id = goal.id;
+        this.goals.push(newGoal);
+      });
+    });
+
     this.newGoalForm.get('category').valueChanges.pipe(
       takeUntil(this.compDest)
     ).subscribe((newCategory) => {
@@ -59,8 +99,6 @@ export class GoalsComponent implements OnInit, OnDestroy {
     ).subscribe((newAmount) => {
       this.onAmount(newAmount);
     });
-
-
   }
 
   ngOnDestroy(): void {
@@ -76,13 +114,33 @@ export class GoalsComponent implements OnInit, OnDestroy {
     } else {
       return 'Invalid value';
     }
-
-
   }
 
   submitForm() {
     const goal: Goal = this.newGoalForm.value;
-    console.log(goal);
+    goal.lastModified = new Date().getTime();
+    if (goal.completionDate) {
+      goal.completionDate = goal.completionDate.getTime();
+    } else {
+      goal.completionDate = "";
+    }
+    // Link the associated asset or liability via it's id as a FK in the goal
+    if (this.selectedCategory === 'Savings' && this.selectedAsset) {
+      goal.assetId = this.selectedAsset.id;
+    } else if (this.selectedCategory === 'Debt Payoff' && this.selectedLiability) {
+      goal.liabilityId = this.selectedLiability.id;
+    }
+
+    // Add or update the goal based on editMode or not
+    if (this.editMode === false) {
+      this.goalsRef.add(goal);
+    } else if (this.editMode === true) {
+      this.goalsRef.doc(this.editId).set(goal);
+      // Reset the edit variables
+      this.editId = null;
+      this.editMode = false;
+    }
+
     this.newGoalForm.reset();
   }
 
@@ -94,27 +152,16 @@ export class GoalsComponent implements OnInit, OnDestroy {
     this.selectedCategory = category;
     if (this.selectedCategory === 'Savings') {
       this.sources = []; // Clear the old array
-      // fetch assets names
-      let that = this;
-      this.assetsRef.get().then((querySnapshot) => {
-        querySnapshot.forEach(function(asset) {
-          let newAsset = asset.data() as Asset;
-          that.assets.push(newAsset);
-          that.sources.push(newAsset.name);
-        });
-      });
-
+      // Set sources to asset names
+      this.assets.forEach(asset => {
+        this.sources.push(asset.name);
+      })
     } else if (this.selectedCategory === 'Debt Payoff') {
       this.sources = []; // Clear the old array
-      // fetch liabilities names
-      let that = this;
-      this.liabilitesRef.get().then((querySnapshot) => {
-        querySnapshot.forEach(function(liability) {
-          let newLiability = liability.data() as Liability;
-          that.liabilities.push(newLiability);
-          that.sources.push(newLiability.name);
-        });
-      });
+      // Set sources to liability names
+      this.liabilities.forEach(liability => {
+        this.sources.push(liability.name);
+      })
     }
   }
 
@@ -128,6 +175,9 @@ export class GoalsComponent implements OnInit, OnDestroy {
           completionDate: new Date(this.selectedLiability.dueDate)
         });
       }
+    } else if (this.selectedCategory === 'Savings') {
+      // Set the selected asset
+      this.selectedAsset = this.assets.find(element => element.name === this.selectedSource);
     }
   }
 
@@ -148,6 +198,30 @@ export class GoalsComponent implements OnInit, OnDestroy {
         this.payoffError = "";
       }
     }
+  }
+
+  onEdit(goal: Goal) {
+    // Set edit variables
+    this.editMode = true;
+    this.editId = goal.id;
+
+    let completionDate: Date;
+    // Format the date for the form
+    if(goal.completionDate) {
+      completionDate = new Date(goal.completionDate);
+    }
+
+    // Fill in the form with the goal to edit
+    this.newGoalForm.patchValue({
+      category: goal.category,
+      source: goal.source,
+      amount: goal.amount,
+      completionDate: completionDate
+    });
+  }
+
+  onDelete(id: string) {
+    this.goalsRef.doc(id).delete();
   }
 
 }

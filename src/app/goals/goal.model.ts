@@ -3,6 +3,10 @@ export class Goal {
     public category: string,
     public source: string,
     public amount: number,
-    public completionDate?: any
+    public lastModified?: any,
+    public completionDate?: any,
+    public id?: string,
+    public assetId?: string,
+    public liabilityId?: string
   ) { }
 }
