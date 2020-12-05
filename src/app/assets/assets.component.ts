@@ -14,7 +14,7 @@ import { Asset } from './asset.model';
 export class AssetsComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
-  displayedColumns: string[] = ['category', 'name', 'value', 'note', 'actions'];
+  displayedColumns: string[] = ['category', 'name', 'value', 'note', 'lastModified', 'actions'];
   dataSource: MatTableDataSource<Asset>;
   categories: string[] = ['Savings', 'Checking', 'CD', '401k', 'HSA', 'Other'];
   assets: Asset[] = [];
@@ -52,10 +52,14 @@ export class AssetsComponent implements OnInit {
   submitForm() {
     const asset: Asset = this.newAssetForm.value;
     // Firebase doesn't take null/undefined, so set empty notes to empty string
-    if (asset.note === undefined) {
+    if (asset.note === undefined || null) {
       asset.note = "";
     }
 
+    // Always update the modified date
+    asset.lastModified = new Date().getTime();
+
+    // Add or update the asset based on editMode or not
     if (this.editMode === false) {
       this.assetsRef.add(asset);
     } else if (this.editMode === true) {

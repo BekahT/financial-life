@@ -14,7 +14,7 @@ import { Liability } from './liability.model';
 export class LiabilitiesComponent implements OnInit {
   @ViewChild(MatSort, {static: true}) sort: MatSort;
 
-  displayedColumns: string[] = ['category', 'name', 'balance', 'dueDate', 'interestRate', 'note', 'actions'];
+  displayedColumns: string[] = ['category', 'name', 'balance', 'dueDate', 'interestRate', 'note', 'lastModified', 'actions'];
   dataSource: MatTableDataSource<Liability>;
   categories: string[] = ['Mortgage', 'Auto Loan', 'Student Loan', 'Credit Card', 'Other'];
   liabilities: Liability[] = [];
@@ -59,11 +59,15 @@ export class LiabilitiesComponent implements OnInit {
     } else {
       liability.dueDate = "";
     }
-    // Firebase doesn't take null/undefined, so set empty notes to empty string
-    if (liability.note === undefined) {
+
+    if (liability.note === undefined || null) {
       liability.note = "";
     }
 
+    // Always update the modified date
+    liability.lastModified = new Date().getTime();
+
+    // Add or update the liability based on editMode or not
     if (this.editMode === false) {
       this.liabilitiesRef.add(liability);
     } else if (this.editMode === true) {
