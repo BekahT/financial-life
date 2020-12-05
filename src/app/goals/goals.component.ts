@@ -117,7 +117,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
   }
 
   submitForm() {
-    const goal: Goal = this.newGoalForm.value;
+    let goal: Goal = this.newGoalForm.value;
     goal.lastModified = new Date().getTime();
     if (goal.completionDate) {
       goal.completionDate = goal.completionDate.getTime();
@@ -125,9 +125,9 @@ export class GoalsComponent implements OnInit, OnDestroy {
       goal.completionDate = "";
     }
     // Link the associated asset or liability via it's id as a FK in the goal
-    if (this.selectedCategory === 'Savings' && this.selectedAsset) {
+    if (goal.category === 'Savings' && this.selectedAsset) {
       goal.assetId = this.selectedAsset.id;
-    } else if (this.selectedCategory === 'Debt Payoff' && this.selectedLiability) {
+    } else if (goal.category === 'Debt Payoff' && this.selectedLiability) {
       goal.liabilityId = this.selectedLiability.id;
     }
 
@@ -140,7 +140,6 @@ export class GoalsComponent implements OnInit, OnDestroy {
       this.editId = null;
       this.editMode = false;
     }
-
     this.newGoalForm.reset();
   }
 

@@ -52,7 +52,7 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   submitForm() {
-    const liability: Liability = this.newLiabilityForm.value;
+    let liability: Liability = this.newLiabilityForm.value;
 
     if (liability.dueDate) {
       liability.dueDate = liability.dueDate.getTime();

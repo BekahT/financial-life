@@ -50,7 +50,7 @@ export class AssetsComponent implements OnInit {
   }
 
   submitForm() {
-    const asset: Asset = this.newAssetForm.value;
+    let asset: Asset = this.newAssetForm.value;
     // Firebase doesn't take null/undefined, so set empty notes to empty string
     if (asset.note === undefined || null) {
       asset.note = "";
