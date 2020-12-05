@@ -3,7 +3,7 @@ export class Asset {
     public name: string,
     public value: number,
     public category: string,
-    public lastModified: any,
+    public lastModified?: any,
     public note?: string,
     public id?: string
   ) { }
