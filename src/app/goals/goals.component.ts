@@ -10,8 +10,6 @@ import { Asset } from '../assets/asset.model';
 import { Liability } from '../liabilities/liability.model';
 
 import * as moment from 'moment';
-import { ChartOptions, ChartType, ChartDataSets } from 'chart.js';
-import { Color, Label } from 'ng2-charts';
 
 @Component({
   selector: 'app-goals',
@@ -50,38 +48,6 @@ export class GoalsComponent implements OnInit, OnDestroy {
   assetsRef = this.dbs.db.collection('assets');
   liabilitiesRef = this.dbs.db.collection('liabilities');
   goalsRef = this.dbs.db.collection('goals');
-
-  // Chart Set up
-  chartOptions: ChartOptions = {
-    responsive: true,
-    scales: {
-      yAxes: [{
-        ticks: {
-          beginAtZero: true
-        }
-      }]
-    }
-  };
-  chartColors: Color[] = [
-    {
-      borderColor: 'black',
-      backgroundColor: '#6200EE',
-    },
-    {
-      borderColor: 'black',
-      backgroundColor: '#03DAC6',
-    }
-  ];
-  chartType: ChartType = 'line';
-  chartLegend = true;
-  chartPlugins = [];
-
-  chartLabels: Label[] = ['Aug 2020', 'Sept 2020', 'Oct 2020', 'Nov 2020', 'Dec 2020'];
-
-  chartData: ChartDataSets[] = [
-    {data: [3000, 3450, 6000, 7500, 9000],
-    label: 'PLACEHOLDER'}
-  ]
 
   compDest: Subject<any> = new Subject;
 
@@ -264,14 +230,14 @@ export class GoalsComponent implements OnInit, OnDestroy {
   }
 
   getBalance(type: string, id: string) {
-    var balance: number;
+    let balance: number;
     // Depending on the type, use the fk to get the balance
     if (type === 'asset') {
-      var asset: Asset;
+      let asset: Asset;
       asset = this.assets.find(element => element.id === id);
       balance = asset.value;
     } else if (type === 'liability') {
-      var liability: Liability;
+      let liability: Liability;
       liability = this.liabilities.find(element => element.id === id);
       balance = liability.balance;
     } else {
@@ -280,28 +246,4 @@ export class GoalsComponent implements OnInit, OnDestroy {
     }
     return balance;
   }
-
-  // getChartLabels(goal: Goal) {
-  //   var chartLabels: Label[];
-  //   chartLabels = ['Oct 2020', 'Nov 2020', 'Dec 2020'];
-  //   return chartLabels;
-  // }
-
-  // getChartData(goal: Goal) {
-  //   var chartData: ChartDataSets[];
-  //   if(goal.category === 'Savings') {
-  //     var balance = this.getBalance('asset', goal.assetId);
-  //     chartData = [
-  //       {data: [balance-goal.amount, balance, balance+goal.amount],
-  //       label: 'Asset Balance'}
-  //     ]
-  //   } else if (goal.category = 'Debt Payoff') {
-  //     var balance = this.getBalance('liability', goal.liabilityId);
-  //     chartData = [
-  //       {data: [balance-goal.amount, balance, balance+goal.amount],
-  //       label: 'Liability Balance'}
-  //     ]
-  //   }
-  //   return chartData;
-  // }
 }

@@ -69,7 +69,7 @@ export class LiabilitiesComponent implements OnInit {
 
     // Add or update the liability based on editMode or not
     if (this.editMode === false) {
-      var id: string;
+      let id: string;
       this.liabilitiesRef.add(liability).then((docRef) => {
         id = docRef.id;
         // add a copy to the historical liability information
@@ -114,6 +114,13 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   onDelete(id: string) {
+    // Get all historical entries and delete them
+    this.dbs.db.collection('liabilities').doc(id).collection('historical').get().then((res) => {
+      res.forEach((entry) => {
+        this.dbs.db.collection('liabilities').doc(id).collection('historical').doc(entry.id).delete();
+      });
+    });
+    // Delete the liability itself
     this.liabilitiesRef.doc(id).delete();
   }
 

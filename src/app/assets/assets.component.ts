@@ -61,7 +61,7 @@ export class AssetsComponent implements OnInit {
 
     // Add or update the asset based on editMode or not
     if (this.editMode === false) {
-      var id: string;
+      let id: string;
       // Add the asset, then get the id back
       this.assetsRef.add(asset).then((docRef) => {
         id = docRef.id;
@@ -99,6 +99,13 @@ export class AssetsComponent implements OnInit {
   }
 
   onDelete(id: string) {
+    // Get all historical entries and delete them
+    this.dbs.db.collection('assets').doc(id).collection('historical').get().then((res) => {
+      res.forEach((entry) => {
+        this.dbs.db.collection('assets').doc(id).collection('historical').doc(entry.id).delete();
+      });
+    });
+    // Delete the asset itself
     this.assetsRef.doc(id).delete();
   }
 

@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./component-selector.component.css']
 })
 export class ComponentSelectorComponent implements OnInit {
-  selectedComponent: string = 'assets';
+  selectedComponent: string = 'goals';
 
   constructor() { }
 

@@ -78,17 +78,15 @@
       <mat-card-content>
         <div>Budgeted Monthly: {{ goal.amount | currency }}</div>
 
-        <div *ngIf="goal.assetId">Total Saved: {{ getBalance('asset', goal.assetId) | currency }}</div>
+        <div *ngIf="goal.assetId">Current Value Saved: {{ getBalance('asset', goal.assetId) | currency }}</div>
 
-        <div *ngIf="goal.liabilityId">Total Remaining to Pay off:
+        <div *ngIf="goal.liabilityId">Current Balance Due:
           {{ getBalance('liability', goal.liabilityId) | currency }}</div>
 
         <div *ngIf="goal.completionDate">Completion Date: {{ goal.completionDate | date:'yyyy-MM-dd'}}</div>
       </mat-card-content>
       <div mat-card-image>
-        <canvas baseChart [datasets]="chartData" [labels]="chartLabels" [options]="chartOptions" [colors]="chartColors"
-          [plugins]="chartPlugins" [legend]="chartLegend" [chartType]="chartType">
-        </canvas>
+        <app-graph [goal]="goal"></app-graph>
       </div>
       <mat-card-subtitle>Last Modified: {{ goal.lastModified | date:'yyyy-MM-dd h:mm:ss a'}}</mat-card-subtitle>
     </mat-card>

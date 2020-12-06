@@ -1,6 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 import { MaterialModule } from './material.module';
@@ -19,6 +19,7 @@ import { HeaderComponent } from './header/header.component';
 import { ComponentSelectorComponent } from './shared/component-selector/component-selector.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from 'src/environments/environment';
+import { GraphComponent } from './shared/graph/graph.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +29,8 @@ import { environment } from 'src/environments/environment';
     BudgetComponent,
     GoalsComponent,
     HeaderComponent,
-    ComponentSelectorComponent
+    ComponentSelectorComponent,
+    GraphComponent
   ],
   imports: [
     BrowserModule,
@@ -42,7 +44,7 @@ import { environment } from 'src/environments/environment';
     AngularFireAnalyticsModule,
     ChartsModule
   ],
-  providers: [],
+  providers: [CurrencyPipe],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
