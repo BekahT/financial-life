@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { FirebaseService } from '../shared/services/firebase.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { FirebaseService } from '../shared/services/firebase.service';
 import { Asset } from './asset.model';
 
 @Component({
@@ -12,7 +13,7 @@ import { Asset } from './asset.model';
   styleUrls: ['./assets.component.css']
 })
 export class AssetsComponent implements OnInit {
-  @ViewChild(MatSort, {static: true}) sort: MatSort;
+  @ViewChild(MatSort, { static: true }) sort: MatSort;
 
   displayedColumns: string[] = ['category', 'name', 'value', 'note', 'lastModified', 'actions'];
   dataSource: MatTableDataSource<Asset>;
@@ -21,7 +22,7 @@ export class AssetsComponent implements OnInit {
   editMode: Boolean = false;
   editId: string;
 
-  assetsRef = this.dbs.db.collection('assets');
+  assetsRef = this.dbs.getAssetsRef();
 
   newAssetForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -30,10 +31,10 @@ export class AssetsComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private dbs: FirebaseService) { }
+  constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
-    this.assetsRef.onSnapshot((res) => {
+    this.assetsRef.orderBy("category").orderBy("name").onSnapshot((res) => {
       this.assets = []; // clear the old asset array
       res.forEach((asset) => {
         let newAsset = asset.data() as Asset;
@@ -45,11 +46,11 @@ export class AssetsComponent implements OnInit {
     });
   }
 
-  getError(control: string) {
+  getError(control: string): string {
     return this.newAssetForm.get(control).hasError('required') ? 'Please enter a value' : '';
   }
 
-  submitForm() {
+  submitForm(): void {
     let asset: Asset = this.newAssetForm.value;
     // Firebase doesn't take null/undefined, so set empty notes to empty string
     if (asset.note === undefined || null) {
@@ -66,13 +67,26 @@ export class AssetsComponent implements OnInit {
       this.assetsRef.add(asset).then((docRef) => {
         id = docRef.id;
         // add a copy to the historical asset information
-        this.dbs.db.collection('assets').doc(id).collection('historical').add(asset);
+        this.dbs.getHistoricalAssetsRef(id).add(asset);
+        this.snackBar.open("Asset Successfully Created", "Dismiss", {
+          duration: 5000
+        });
+      }).catch((error) => {
+        this.snackBar.open("Error Creating Asset", "Dismiss");
       });
     } else if (this.editMode === true) {
       // update the current asset information
-      this.assetsRef.doc(this.editId).set(asset);
+      this.assetsRef.doc(this.editId).set(asset).then((res) => {
+        this.snackBar.open("Asset Successfully Updated", "Dismiss", {
+          duration: 5000
+        });
+      }).catch((error) => {
+        this.snackBar.open("Error Updating Asset", "Dismiss");
+      });
       // add a copy to the historical asset information
-      this.dbs.db.collection('assets').doc(this.editId).collection('historical').add(asset);
+      this.dbs.getHistoricalAssetsRef(this.editId).add(asset).catch((error) => {
+        this.snackBar.open("Error Updating Asset History", "Dismiss");
+      });
 
       // Reset the edit variables
       this.editId = null;
@@ -81,11 +95,11 @@ export class AssetsComponent implements OnInit {
     this.newAssetForm.reset();
   }
 
-  getTotalValue() {
+  getTotalValue(): number {
     return this.assets.map(t => t.value).reduce((acc, value) => acc + value, 0);
   }
 
-  onEdit(asset: Asset) {
+  onEdit(asset: Asset): void {
     // Set edit variables
     this.editMode = true;
     this.editId = asset.id;
@@ -98,18 +112,26 @@ export class AssetsComponent implements OnInit {
     });
   }
 
-  onDelete(id: string) {
+  onDelete(id: string): void {
     // Get all historical entries and delete them
-    this.dbs.db.collection('assets').doc(id).collection('historical').get().then((res) => {
+    this.dbs.getHistoricalAssetsRef(id).get().then((res) => {
       res.forEach((entry) => {
-        this.dbs.db.collection('assets').doc(id).collection('historical').doc(entry.id).delete();
+        this.dbs.getHistoricalAssetsRef(id).doc(entry.id).delete();
       });
+    }).catch((error) => {
+      this.snackBar.open("Error Deleting Asset History", "Dismiss");
     });
     // Delete the asset itself
-    this.assetsRef.doc(id).delete();
+    this.assetsRef.doc(id).delete().then((res) => {
+      this.snackBar.open("Asset Successfully Deleted", "Dismiss", {
+        duration: 5000
+      });
+    }).catch((error) => {
+      this.snackBar.open("Error Deleting Asset", "Dismiss");
+    });
   }
 
-  onReset() {
+  onReset(): void {
     // Reset the edit variables
     this.editId = null;
     this.editMode = false;

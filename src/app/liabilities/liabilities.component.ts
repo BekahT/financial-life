@@ -2,8 +2,9 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { FirebaseService } from '../shared/services/firebase.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
+import { FirebaseService } from '../shared/services/firebase.service';
 import { Liability } from './liability.model';
 
 @Component({
@@ -21,7 +22,7 @@ export class LiabilitiesComponent implements OnInit {
   editMode: Boolean = false;
   editId: string;
 
-  liabilitiesRef = this.dbs.db.collection('liabilities');
+  liabilitiesRef = this.dbs.getLiabilitiesRef();
 
   newLiabilityForm = new FormGroup({
     name: new FormControl('', Validators.required),
@@ -32,10 +33,10 @@ export class LiabilitiesComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private dbs: FirebaseService) { }
+  constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
-    this.liabilitiesRef.onSnapshot((res) => {
+    this.liabilitiesRef.orderBy("category").orderBy("name").onSnapshot((res) => {
       this.liabilities = []; // clear the old liabilities array
       res.forEach((liability) => {
         let newLiability = liability.data() as Liability;
@@ -47,11 +48,11 @@ export class LiabilitiesComponent implements OnInit {
     });
   }
 
-  getError(control: string) {
+  getError(control: string): string {
     return this.newLiabilityForm.get(control).hasError('required') ? 'Please enter a value' : '';
   }
 
-  submitForm() {
+  submitForm(): void {
     let liability: Liability = this.newLiabilityForm.value;
 
     if (liability.dueDate) {
@@ -73,13 +74,27 @@ export class LiabilitiesComponent implements OnInit {
       this.liabilitiesRef.add(liability).then((docRef) => {
         id = docRef.id;
         // add a copy to the historical liability information
-        this.dbs.db.collection('liabilities').doc(id).collection('historical').add(liability);
+        this.dbs.getHistoricalLiabilitiesRef(id).add(liability);
+        this.snackBar.open("Liability Successfully Created", "Dismiss", {
+          duration: 5000
+        });
+      }).catch((error) => {
+        this.snackBar.open("Error Creating Liability", "Dismiss");
       });
     } else if (this.editMode === true) {
       // update the current asset information
-      this.liabilitiesRef.doc(this.editId).set(liability);
+      this.liabilitiesRef.doc(this.editId).set(liability).then((res) => {
+        this.snackBar.open("Liability Successfully Updated", "Dismiss", {
+          duration: 5000
+        });
+      }).catch((error) => {
+        this.snackBar.open("Error Updating Liability", "Dismiss");
+      });
       // add a copy to the historical liability information
-      this.dbs.db.collection('liabilities').doc(this.editId).collection('historical').add(liability);
+      this.dbs.getHistoricalLiabilitiesRef(this.editId).add(liability).catch((error) => {
+        this.snackBar.open("Error Updating Liability History", "Dismiss");
+      });
+
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;
@@ -87,11 +102,11 @@ export class LiabilitiesComponent implements OnInit {
     this.newLiabilityForm.reset();
   }
 
-  getTotalBalance() {
+  getTotalBalance(): number {
     return this.liabilities.map(t => t.balance).reduce((acc, balance) => acc + balance, 0);
   }
 
-  onEdit(liability: Liability) {
+  onEdit(liability: Liability): void {
     // Set edit variables
     this.editMode = true;
     this.editId = liability.id;
@@ -113,18 +128,26 @@ export class LiabilitiesComponent implements OnInit {
     });
   }
 
-  onDelete(id: string) {
+  onDelete(id: string): void {
     // Get all historical entries and delete them
-    this.dbs.db.collection('liabilities').doc(id).collection('historical').get().then((res) => {
+    this.dbs.getHistoricalLiabilitiesRef(id).get().then((res) => {
       res.forEach((entry) => {
-        this.dbs.db.collection('liabilities').doc(id).collection('historical').doc(entry.id).delete();
+        this.dbs.getHistoricalLiabilitiesRef(id).doc(entry.id).delete();
       });
+    }).catch((error) => {
+      this.snackBar.open("Error Deleting Liability History", "Dismiss");
     });
     // Delete the liability itself
-    this.liabilitiesRef.doc(id).delete();
+    this.liabilitiesRef.doc(id).delete().then((res) => {
+      this.snackBar.open("Liability Successfully Deleted", "Dismiss", {
+        duration: 5000
+      });
+    }).catch((error) => {
+      this.snackBar.open("Error Deleting Liability", "Dismiss");
+    });
   }
 
-  onReset() {
+  onReset(): void {
     // Reset the edit variables
     this.editId = null;
     this.editMode = false;

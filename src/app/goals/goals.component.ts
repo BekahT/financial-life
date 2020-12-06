@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { FirebaseService } from '../shared/services/firebase.service';
 
 import { Subject } from 'rxjs';
@@ -45,13 +47,13 @@ export class GoalsComponent implements OnInit, OnDestroy {
   editId: string;
 
   // db calls
-  assetsRef = this.dbs.db.collection('assets');
-  liabilitiesRef = this.dbs.db.collection('liabilities');
-  goalsRef = this.dbs.db.collection('goals');
+  assetsRef = this.dbs.getAssetsRef();
+  liabilitiesRef = this.dbs.getLiabilitiesRef();
+  goalsRef = this.dbs.getGoalsRef();
 
   compDest: Subject<any> = new Subject;
 
-  constructor(private dbs: FirebaseService) { }
+  constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     // Get all the assets from the db
@@ -110,7 +112,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
     this.compDest.complete();
   }
 
-  getError(control: string) {
+  getError(control: string): string {
     if (this.newGoalForm.get(control).hasError('required')) {
       return 'Please enter a value';
     } else if (this.newGoalForm.get(control).hasError('min')) {
@@ -120,7 +122,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
     }
   }
 
-  submitForm() {
+  submitForm(): void {
     let goal: Goal = this.newGoalForm.value;
     goal.lastModified = new Date().getTime();
     if (goal.completionDate) {
@@ -139,9 +141,21 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
     // Add or update the goal based on editMode or not
     if (this.editMode === false) {
-      this.goalsRef.add(goal);
+      this.goalsRef.add(goal).then((res) => {
+        this.snackBar.open("Goal Successfully Created", "Dismiss", {
+          duration: 5000
+        });
+      }).catch((error) => {
+        this.snackBar.open("Error Creating Goal", "Dismiss");
+      });
     } else if (this.editMode === true) {
-      this.goalsRef.doc(this.editId).set(goal);
+      this.goalsRef.doc(this.editId).set(goal).then((res) => {
+        this.snackBar.open("Goal Successfully Updated", "Dismiss", {
+          duration: 5000
+        });
+      }).catch((error) => {
+        this.snackBar.open("Error Updating Goal", "Dismiss");
+      });
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;
@@ -149,11 +163,11 @@ export class GoalsComponent implements OnInit, OnDestroy {
     this.newGoalForm.reset();
   }
 
-  onReset() {
+  onReset(): void {
     this.newGoalForm.reset();
   }
 
-  onCategory(category: string) {
+  onCategory(category: string): void {
     this.selectedCategory = category;
     if (this.selectedCategory === 'Savings') {
       this.sources = []; // Clear the old array
@@ -170,7 +184,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onSource(source: string) {
+  onSource(source: string): void {
     this.selectedSource = source;
     if (this.selectedCategory === 'Debt Payoff') {
       // Set the completion date to the due date of the debt
@@ -186,7 +200,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onAmount(amount: number) {
+  onAmount(amount: number): void {
     if (this.newGoalForm.valid && this.newGoalForm.get('completionDate').value) {
       let completionDate = moment(this.newGoalForm.get('completionDate').value);
       let today = moment();
@@ -205,7 +219,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
     }
   }
 
-  onEdit(goal: Goal) {
+  onEdit(goal: Goal): void {
     // Set edit variables
     this.editMode = true;
     this.editId = goal.id;
@@ -225,11 +239,17 @@ export class GoalsComponent implements OnInit, OnDestroy {
     });
   }
 
-  onDelete(id: string) {
-    this.goalsRef.doc(id).delete();
+  onDelete(id: string): void {
+    this.goalsRef.doc(id).delete().then((res) => {
+      this.snackBar.open("Goal Successfully Deleted", "Dismiss", {
+        duration: 5000
+      });
+    }).catch((error) => {
+      this.snackBar.open("Error Deleting Goal", "Dismiss");
+    });
   }
 
-  getBalance(type: string, id: string) {
+  getBalance(type: string, id: string): number {
     let balance: number;
     // Depending on the type, use the fk to get the balance
     if (type === 'asset') {
