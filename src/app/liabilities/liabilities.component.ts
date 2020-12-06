@@ -69,9 +69,17 @@ export class LiabilitiesComponent implements OnInit {
 
     // Add or update the liability based on editMode or not
     if (this.editMode === false) {
-      this.liabilitiesRef.add(liability);
+      var id: string;
+      this.liabilitiesRef.add(liability).then((docRef) => {
+        id = docRef.id;
+        // add a copy to the historical liability information
+        this.dbs.db.collection('liabilities').doc(id).collection('historical').add(liability);
+      });
     } else if (this.editMode === true) {
+      // update the current asset information
       this.liabilitiesRef.doc(this.editId).set(liability);
+      // add a copy to the historical liability information
+      this.dbs.db.collection('liabilities').doc(this.editId).collection('historical').add(liability);
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;

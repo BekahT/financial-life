@@ -8,6 +8,7 @@ import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from "@angular/fire/firestore";
 import { AngularFireAnalyticsModule } from '@angular/fire/analytics';
 
+import { ChartsModule } from 'ng2-charts';
 
 import { AppComponent } from './app.component';
 import { AssetsComponent } from './assets/assets.component';
@@ -38,7 +39,8 @@ import { environment } from 'src/environments/environment';
     MaterialModule,
     AngularFireModule.initializeApp(environment.firebase),
     AngularFirestoreModule,
-    AngularFireAnalyticsModule
+    AngularFireAnalyticsModule,
+    ChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

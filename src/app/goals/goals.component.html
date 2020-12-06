@@ -14,7 +14,8 @@
       <div class="form-group mx-2 source">
         <mat-form-field class="input">
           <mat-label>Source</mat-label>
-          <mat-select formControlName="source" matTooltip="The asset or liability that will be the source of this goal.">
+          <mat-select formControlName="source"
+            matTooltip="The asset or liability that will be the source of this goal.">
             <mat-option *ngFor="let source of sources" [value]="source">{{ source }}</mat-option>
           </mat-select>
           <mat-error *ngIf="!newGoalForm.get('source').valid">{{getError('source')}}</mat-error>
@@ -63,20 +64,32 @@
 <div class="row">
   <div class="col-md-4 my-2" *ngFor="let goal of goals">
     <mat-card>
-        <mat-card-title>
-            {{ goal.category }} - {{ goal.source }}
-            <button mat-icon-button class="m-2" color="primary" aria-label="Edit Goal" matTooltip="Edit Goal" matTooltipPosition="above" (click)="onEdit(goal)">
-              <mat-icon>create</mat-icon>
-            </button>
-            <button mat-icon-button class="m-2" color="warn" aria-label="Delete Goal" matTooltip="Delete Goal" matTooltipPosition="above" (click)="onDelete(goal.id)">
-              <mat-icon>delete</mat-icon>
-            </button>
-        </mat-card-title>
+      <mat-card-title>
+        {{ goal.category }} - {{ goal.source }}
+        <button mat-icon-button class="m-2" color="primary" aria-label="Edit Goal" matTooltip="Edit Goal"
+          matTooltipPosition="above" (click)="onEdit(goal)">
+          <mat-icon>create</mat-icon>
+        </button>
+        <button mat-icon-button class="m-2" color="warn" aria-label="Delete Goal" matTooltip="Delete Goal"
+          matTooltipPosition="above" (click)="onDelete(goal.id)">
+          <mat-icon>delete</mat-icon>
+        </button>
+      </mat-card-title>
       <mat-card-content>
         <div>Budgeted Monthly: {{ goal.amount | currency }}</div>
+
+        <div *ngIf="goal.assetId">Total Saved: {{ getBalance('asset', goal.assetId) | currency }}</div>
+
+        <div *ngIf="goal.liabilityId">Total Remaining to Pay off:
+          {{ getBalance('liability', goal.liabilityId) | currency }}</div>
+
         <div *ngIf="goal.completionDate">Completion Date: {{ goal.completionDate | date:'yyyy-MM-dd'}}</div>
       </mat-card-content>
-      <img mat-card-image src="https://apexcharts.com/wp-content/uploads/2018/01/dynamic-realtime-line-chart.svg">
+      <div mat-card-image>
+        <canvas baseChart [datasets]="chartData" [labels]="chartLabels" [options]="chartOptions" [colors]="chartColors"
+          [plugins]="chartPlugins" [legend]="chartLegend" [chartType]="chartType">
+        </canvas>
+      </div>
       <mat-card-subtitle>Last Modified: {{ goal.lastModified | date:'yyyy-MM-dd h:mm:ss a'}}</mat-card-subtitle>
     </mat-card>
   </div>

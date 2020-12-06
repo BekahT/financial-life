@@ -61,9 +61,19 @@ export class AssetsComponent implements OnInit {
 
     // Add or update the asset based on editMode or not
     if (this.editMode === false) {
-      this.assetsRef.add(asset);
+      var id: string;
+      // Add the asset, then get the id back
+      this.assetsRef.add(asset).then((docRef) => {
+        id = docRef.id;
+        // add a copy to the historical asset information
+        this.dbs.db.collection('assets').doc(id).collection('historical').add(asset);
+      });
     } else if (this.editMode === true) {
+      // update the current asset information
       this.assetsRef.doc(this.editId).set(asset);
+      // add a copy to the historical asset information
+      this.dbs.db.collection('assets').doc(this.editId).collection('historical').add(asset);
+
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;
