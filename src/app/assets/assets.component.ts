@@ -21,6 +21,7 @@ export class AssetsComponent implements OnInit {
   assets: Asset[] = [];
   editMode: Boolean = false;
   editId: string;
+  isLoading: Boolean = false;
 
   assetsRef = this.dbs.getAssetsRef();
 
@@ -34,6 +35,7 @@ export class AssetsComponent implements OnInit {
   constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.assetsRef.orderBy("category").orderBy("name").onSnapshot((res) => {
       this.assets = []; // clear the old asset array
       res.forEach((asset) => {
@@ -43,6 +45,7 @@ export class AssetsComponent implements OnInit {
       });
       this.dataSource = new MatTableDataSource(this.assets);
       this.dataSource.sort = this.sort;
+      this.isLoading = false;
     });
   }
 

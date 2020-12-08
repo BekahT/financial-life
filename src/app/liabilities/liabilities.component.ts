@@ -21,6 +21,7 @@ export class LiabilitiesComponent implements OnInit {
   liabilities: Liability[] = [];
   editMode: Boolean = false;
   editId: string;
+  isLoading: Boolean = false;
 
   liabilitiesRef = this.dbs.getLiabilitiesRef();
 
@@ -36,6 +37,7 @@ export class LiabilitiesComponent implements OnInit {
   constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.isLoading = true;
     this.liabilitiesRef.orderBy("category").orderBy("name").onSnapshot((res) => {
       this.liabilities = []; // clear the old liabilities array
       res.forEach((liability) => {
@@ -45,6 +47,7 @@ export class LiabilitiesComponent implements OnInit {
       });
       this.dataSource = new MatTableDataSource(this.liabilities);
       this.dataSource.sort = this.sort;
+      this.isLoading = false;
     });
   }
 

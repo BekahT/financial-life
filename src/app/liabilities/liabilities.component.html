@@ -69,7 +69,9 @@
   </div>
 </div>
 
-<div class="row">
+<app-loading-notice *ngIf="isLoading"></app-loading-notice>
+
+<div class="row" *ngIf="!isLoading">
   <div class="col-md-12">
     <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 liabilityTable mb-4">
       <!-- Category Column -->

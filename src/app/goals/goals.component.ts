@@ -45,6 +45,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   editMode: Boolean = false;
   editId: string;
+  isLoading: Boolean = false;
 
   // db calls
   assetsRef = this.dbs.getAssetsRef();
@@ -56,6 +57,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
   constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
+    this.isLoading = true;
     // Get all the assets from the db
     this.assetsRef.orderBy("name").onSnapshot((res) => {
       this.assets = []; // clear the old asset array
@@ -84,6 +86,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
         newGoal.id = goal.id;
         this.goals.push(newGoal);
       });
+      this.isLoading = false;
     });
 
     this.newGoalForm.get('category').valueChanges.pipe(

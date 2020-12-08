@@ -20,6 +20,7 @@ import { ComponentSelectorComponent } from './shared/component-selector/componen
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from 'src/environments/environment';
 import { GraphComponent } from './shared/graph/graph.component';
+import { LoadingNoticeComponent } from './shared/loading-notice/loading-notice.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +31,8 @@ import { GraphComponent } from './shared/graph/graph.component';
     GoalsComponent,
     HeaderComponent,
     ComponentSelectorComponent,
-    GraphComponent
+    GraphComponent,
+    LoadingNoticeComponent
   ],
   imports: [
     BrowserModule,

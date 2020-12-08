@@ -61,7 +61,10 @@
     </div>
   </div>
 </div>
-<div class="row">
+
+<app-loading-notice *ngIf="isLoading"></app-loading-notice>
+
+<div class="row" *ngIf="!isLoading">
   <div class="col-md-4 my-2" *ngFor="let goal of goals">
     <mat-card>
       <mat-card-title>

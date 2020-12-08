@@ -49,9 +49,11 @@
   </div>
 </div>
 
+<app-loading-notice *ngIf="isLoading"></app-loading-notice>
+
 <div class="row">
   <div class="col-md-12">
-    <table mat-table [dataSource]="dataSource" matSort class="mat-elevation-z8 assetTable mb-4">
+    <table mat-table [dataSource]="dataSource" matSort *ngIf="!isLoading" class="mat-elevation-z8 assetTable mb-4">
       <!-- Category Column -->
       <ng-container matColumnDef="category">
         <th mat-header-cell *matHeaderCellDef mat-sort-header> Category </th>
