@@ -56,6 +56,14 @@ export class FirebaseService {
   }
 
   deleteAsset(id: string) {
+    // Delete any associated goals
+    this.getGoalsRef().where("assetId", "==", id).get().then((res) => {
+      res.forEach((goal) => {
+        this.getGoalsRef().doc(goal.id).delete();
+      });
+    }).catch((error) => {
+      this.snackbarService.showFailureSnackbar("Error Deleting Linked Goal(s)");
+    });
     // Get all historical entries and delete them
     this.getHistoricalAssetsRef(id).get().then((res) => {
       res.forEach((entry) => {
@@ -106,6 +114,14 @@ export class FirebaseService {
   }
 
   deleteLiability(id: string) {
+    // Delete any associated goals
+    this.getGoalsRef().where("liabilityId", "==", id).get().then((res) => {
+      res.forEach((goal) => {
+        this.getGoalsRef().doc(goal.id).delete();
+      });
+    }).catch((error) => {
+      this.snackbarService.showFailureSnackbar("Error Deleting Linked Goal(s)");
+    });
     // Get all historical entries and delete them
     this.getHistoricalLiabilitiesRef(id).get().then((res) => {
       res.forEach((entry) => {
