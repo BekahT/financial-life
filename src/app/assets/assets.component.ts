@@ -7,6 +7,8 @@ import { FirebaseService } from '../shared/services/firebase.service';
 import { SnackbarServiceService } from '../shared/services/snackbar-service.service';
 
 import { Asset } from './asset.model';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-assets',
@@ -33,7 +35,7 @@ export class AssetsComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService) { }
+  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -98,7 +100,17 @@ export class AssetsComponent implements OnInit {
   }
 
   onDelete(id: string): void {
-    this.dbs.deleteAsset(id);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '450px',
+      data: {type: 'asset'}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Only delete if the user selected yes
+      if(result === true) {
+        this.dbs.deleteAsset(id);
+      }
+    });
   }
 
   onReset(): void {

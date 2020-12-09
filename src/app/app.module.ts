@@ -21,6 +21,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { environment } from 'src/environments/environment';
 import { GraphComponent } from './shared/graph/graph.component';
 import { LoadingNoticeComponent } from './shared/loading-notice/loading-notice.component';
+import { ConfirmationDialogComponent } from './shared/confirmation-dialog/confirmation-dialog.component';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { LoadingNoticeComponent } from './shared/loading-notice/loading-notice.c
     HeaderComponent,
     ComponentSelectorComponent,
     GraphComponent,
-    LoadingNoticeComponent
+    LoadingNoticeComponent,
+    ConfirmationDialogComponent
   ],
   imports: [
     BrowserModule,

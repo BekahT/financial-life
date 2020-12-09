@@ -6,12 +6,14 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
 import { FirebaseService } from '../shared/services/firebase.service';
 import { SnackbarServiceService } from '../shared/services/snackbar-service.service';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 import { Goal } from './goal.model';
 import { Asset } from '../assets/asset.model';
 import { Liability } from '../liabilities/liability.model';
 
 import * as moment from 'moment';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-goals',
@@ -54,7 +56,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   compDest: Subject<any> = new Subject;
 
-  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService) { }
+  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -239,7 +241,17 @@ export class GoalsComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: string): void {
-    this.dbs.deleteGoal(id);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '450px',
+      data: {type: 'goal'}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Only delete if the user selected yes
+      if(result === true) {
+        this.dbs.deleteGoal(id);
+      }
+    });
   }
 
   getBalance(type: string, id: string): number {

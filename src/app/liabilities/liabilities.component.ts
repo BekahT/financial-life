@@ -5,8 +5,10 @@ import { MatSort } from '@angular/material/sort';
 
 import { FirebaseService } from '../shared/services/firebase.service';
 import { SnackbarServiceService } from '../shared/services/snackbar-service.service';
+import { ConfirmationDialogComponent } from '../shared/confirmation-dialog/confirmation-dialog.component';
 
 import { Liability } from './liability.model';
+import { MatDialog } from '@angular/material/dialog';
 
 @Component({
   selector: 'app-liabilities',
@@ -35,7 +37,7 @@ export class LiabilitiesComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService) { }
+  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -115,7 +117,17 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   onDelete(id: string): void {
-    this.dbs.deleteLiability(id);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '450px',
+      data: {type: 'liability'}
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      // Only delete if the user selected yes
+      if(result === true) {
+        this.dbs.deleteLiability(id);
+      }
+    });
   }
 
   onReset(): void {
