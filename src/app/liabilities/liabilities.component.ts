@@ -77,26 +77,9 @@ export class LiabilitiesComponent implements OnInit {
 
     // Add or update the liability based on editMode or not
     if (this.editMode === false) {
-      let id: string;
-      this.liabilitiesRef.add(liability).then((docRef) => {
-        id = docRef.id;
-        // add a copy to the historical liability information
-        this.dbs.getHistoricalLiabilitiesRef(id).add(liability);
-        this.snackbarService.showSuccessSnackbar("Liability Successfully Created");
-      }).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Creating Liability");
-      });
+      this.dbs.addLiability(liability);
     } else if (this.editMode === true) {
-      // update the current asset information
-      this.liabilitiesRef.doc(this.editId).set(liability).then((res) => {
-        this.snackbarService.showSuccessSnackbar("Liability Successfully Updated");
-      }).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Updating Liability");
-      });
-      // add a copy to the historical liability information
-      this.dbs.getHistoricalLiabilitiesRef(this.editId).add(liability).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Updating Liability History");
-      });
+      this.dbs.updateLiability(liability, this.editId);
 
       // Reset the edit variables
       this.editId = null;
@@ -132,20 +115,7 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   onDelete(id: string): void {
-    // Get all historical entries and delete them
-    this.dbs.getHistoricalLiabilitiesRef(id).get().then((res) => {
-      res.forEach((entry) => {
-        this.dbs.getHistoricalLiabilitiesRef(id).doc(entry.id).delete();
-      });
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Liability History");
-    });
-    // Delete the liability itself
-    this.liabilitiesRef.doc(id).delete().then((res) => {
-      this.snackbarService.showSuccessSnackbar("Liability Successfully Deleted");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Liability");
-    });
+    this.dbs.deleteLiability(id);
   }
 
   onReset(): void {

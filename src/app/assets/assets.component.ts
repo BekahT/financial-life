@@ -69,27 +69,9 @@ export class AssetsComponent implements OnInit {
 
     // Add or update the asset based on editMode or not
     if (this.editMode === false) {
-      let id: string;
-      // Add the asset, then get the id back
-      this.assetsRef.add(asset).then((docRef) => {
-        id = docRef.id;
-        // add a copy to the historical asset information
-        this.dbs.getHistoricalAssetsRef(id).add(asset);
-        this.snackbarService.showSuccessSnackbar("Asset Successfully Created");
-      }).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Creating Asset");
-      });
+      this.dbs.addAsset(asset);
     } else if (this.editMode === true) {
-      // update the current asset information
-      this.assetsRef.doc(this.editId).set(asset).then((res) => {
-        this.snackbarService.showSuccessSnackbar("Asset Successfully Updated");
-      }).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Updating Asset");
-      });
-      // add a copy to the historical asset information
-      this.dbs.getHistoricalAssetsRef(this.editId).add(asset).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Updating Asset History");
-      });
+      this.dbs.updateAsset(asset, this.editId);
 
       // Reset the edit variables
       this.editId = null;
@@ -116,20 +98,7 @@ export class AssetsComponent implements OnInit {
   }
 
   onDelete(id: string): void {
-    // Get all historical entries and delete them
-    this.dbs.getHistoricalAssetsRef(id).get().then((res) => {
-      res.forEach((entry) => {
-        this.dbs.getHistoricalAssetsRef(id).doc(entry.id).delete();
-      });
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Asset History");
-    });
-    // Delete the asset itself
-    this.assetsRef.doc(id).delete().then((res) => {
-      this.snackbarService.showSuccessSnackbar("Asset Successfully Deleted");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Asset");
-    });
+    this.dbs.deleteAsset(id);
   }
 
   onReset(): void {

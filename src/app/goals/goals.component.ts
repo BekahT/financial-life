@@ -151,17 +151,10 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
     // Add or update the goal based on editMode or not
     if (this.editMode === false) {
-      this.goalsRef.add(goal).then((res) => {
-        this.snackbarService.showSuccessSnackbar("Goal Successfully Created");
-      }).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Creating Goal");
-      });
+      this.dbs.addGoal(goal);
     } else if (this.editMode === true) {
-      this.goalsRef.doc(this.editId).set(goal).then((res) => {
-        this.snackbarService.showSuccessSnackbar("Goal Successfully Updated");
-      }).catch((error) => {
-        this.snackbarService.showFailureSnackbar("Error Updating Goal");
-      });
+      this.dbs.updateGoal(goal, this.editId);
+
       // Reset the edit variables
       this.editId = null;
       this.editMode = false;
@@ -246,11 +239,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
   }
 
   onDelete(id: string): void {
-    this.goalsRef.doc(id).delete().then((res) => {
-      this.snackbarService.showSuccessSnackbar("Goal Successfully Deleted");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Goal");
-    });
+    this.dbs.deleteGoal(id);
   }
 
   getBalance(type: string, id: string): number {
