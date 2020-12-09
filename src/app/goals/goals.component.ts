@@ -1,11 +1,11 @@
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
-
-import { FirebaseService } from '../shared/services/firebase.service';
 
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+
+import { FirebaseService } from '../shared/services/firebase.service';
+import { SnackbarServiceService } from '../shared/services/snackbar-service.service';
 
 import { Goal } from './goal.model';
 import { Asset } from '../assets/asset.model';
@@ -54,7 +54,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   compDest: Subject<any> = new Subject;
 
-  constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
+  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -66,6 +66,8 @@ export class GoalsComponent implements OnInit, OnDestroy {
         newAsset.id = asset.id;
         this.assets.push(newAsset);
       });
+    }, (error) => {
+      this.snackbarService.showFailureSnackbar("Error Fetching Assets");
     });
 
     // Get all the liabilties from the db
@@ -76,6 +78,8 @@ export class GoalsComponent implements OnInit, OnDestroy {
         newLiability.id = liability.id;
         this.liabilities.push(newLiability);
       });
+    }, (error) => {
+      this.snackbarService.showFailureSnackbar("Error Fetching Liabilities");
     });
 
     // Get all the goals from the db
@@ -86,6 +90,9 @@ export class GoalsComponent implements OnInit, OnDestroy {
         newGoal.id = goal.id;
         this.goals.push(newGoal);
       });
+      this.isLoading = false;
+    }, (error) => {
+      this.snackbarService.showFailureSnackbar("Error Fetching Goals");
       this.isLoading = false;
     });
 
@@ -145,19 +152,15 @@ export class GoalsComponent implements OnInit, OnDestroy {
     // Add or update the goal based on editMode or not
     if (this.editMode === false) {
       this.goalsRef.add(goal).then((res) => {
-        this.snackBar.open("Goal Successfully Created", "Dismiss", {
-          duration: 5000
-        });
+        this.snackbarService.showSuccessSnackbar("Goal Successfully Created");
       }).catch((error) => {
-        this.snackBar.open("Error Creating Goal", "Dismiss");
+        this.snackbarService.showFailureSnackbar("Error Creating Goal");
       });
     } else if (this.editMode === true) {
       this.goalsRef.doc(this.editId).set(goal).then((res) => {
-        this.snackBar.open("Goal Successfully Updated", "Dismiss", {
-          duration: 5000
-        });
+        this.snackbarService.showSuccessSnackbar("Goal Successfully Updated");
       }).catch((error) => {
-        this.snackBar.open("Error Updating Goal", "Dismiss");
+        this.snackbarService.showFailureSnackbar("Error Updating Goal");
       });
       // Reset the edit variables
       this.editId = null;
@@ -244,11 +247,9 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   onDelete(id: string): void {
     this.goalsRef.doc(id).delete().then((res) => {
-      this.snackBar.open("Goal Successfully Deleted", "Dismiss", {
-        duration: 5000
-      });
+      this.snackbarService.showSuccessSnackbar("Goal Successfully Deleted");
     }).catch((error) => {
-      this.snackBar.open("Error Deleting Goal", "Dismiss");
+      this.snackbarService.showFailureSnackbar("Error Deleting Goal");
     });
   }
 

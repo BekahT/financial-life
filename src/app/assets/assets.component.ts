@@ -2,9 +2,10 @@ import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatSort } from '@angular/material/sort';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 import { FirebaseService } from '../shared/services/firebase.service';
+import { SnackbarServiceService } from '../shared/services/snackbar-service.service';
+
 import { Asset } from './asset.model';
 
 @Component({
@@ -32,7 +33,7 @@ export class AssetsComponent implements OnInit {
     note: new FormControl('')
   });
 
-  constructor(private dbs: FirebaseService, private snackBar: MatSnackBar) { }
+  constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService) { }
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -45,6 +46,9 @@ export class AssetsComponent implements OnInit {
       });
       this.dataSource = new MatTableDataSource(this.assets);
       this.dataSource.sort = this.sort;
+      this.isLoading = false;
+    }, (error) => {
+      this.snackbarService.showFailureSnackbar("Error Fetching Assets");
       this.isLoading = false;
     });
   }
@@ -71,24 +75,20 @@ export class AssetsComponent implements OnInit {
         id = docRef.id;
         // add a copy to the historical asset information
         this.dbs.getHistoricalAssetsRef(id).add(asset);
-        this.snackBar.open("Asset Successfully Created", "Dismiss", {
-          duration: 5000
-        });
+        this.snackbarService.showSuccessSnackbar("Asset Successfully Created");
       }).catch((error) => {
-        this.snackBar.open("Error Creating Asset", "Dismiss");
+        this.snackbarService.showFailureSnackbar("Error Creating Asset");
       });
     } else if (this.editMode === true) {
       // update the current asset information
       this.assetsRef.doc(this.editId).set(asset).then((res) => {
-        this.snackBar.open("Asset Successfully Updated", "Dismiss", {
-          duration: 5000
-        });
+        this.snackbarService.showSuccessSnackbar("Asset Successfully Updated");
       }).catch((error) => {
-        this.snackBar.open("Error Updating Asset", "Dismiss");
+        this.snackbarService.showFailureSnackbar("Error Updating Asset");
       });
       // add a copy to the historical asset information
       this.dbs.getHistoricalAssetsRef(this.editId).add(asset).catch((error) => {
-        this.snackBar.open("Error Updating Asset History", "Dismiss");
+        this.snackbarService.showFailureSnackbar("Error Updating Asset History");
       });
 
       // Reset the edit variables
@@ -122,15 +122,13 @@ export class AssetsComponent implements OnInit {
         this.dbs.getHistoricalAssetsRef(id).doc(entry.id).delete();
       });
     }).catch((error) => {
-      this.snackBar.open("Error Deleting Asset History", "Dismiss");
+      this.snackbarService.showFailureSnackbar("Error Deleting Asset History");
     });
     // Delete the asset itself
     this.assetsRef.doc(id).delete().then((res) => {
-      this.snackBar.open("Asset Successfully Deleted", "Dismiss", {
-        duration: 5000
-      });
+      this.snackbarService.showSuccessSnackbar("Asset Successfully Deleted");
     }).catch((error) => {
-      this.snackBar.open("Error Deleting Asset", "Dismiss");
+      this.snackbarService.showFailureSnackbar("Error Deleting Asset");
     });
   }
 
