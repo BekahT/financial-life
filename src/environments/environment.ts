@@ -11,7 +11,8 @@ export const environment = {
     projectId: "myfinanciallife",
     storageBucket: "myfinanciallife.appspot.com",
     messagingSenderId: "223484021685",
-    appId: "1:223484021685:web:c16fc9a76c5c27fdd627fc"
+    appId: "1:223484021685:web:c16fc9a76c5c27fdd627fc",
+    measurementId: "G-D2BKKZZBKC"
   }
 };
 
