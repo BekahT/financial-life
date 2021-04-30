@@ -10,7 +10,7 @@ describe('LoadingNoticeComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [ LoadingNoticeComponent ]
     })
-    .compileComponents();
+      .compileComponents();
   });
 
   beforeEach(() => {

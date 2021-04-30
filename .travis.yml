@@ -1,32 +1,27 @@
 language: node_js
 node_js:
-  - stable # Use stable version of node 
+  - stable
+
+install: npm install - @angular/cli
 
 branches:
   only:
-    - master # Only build master branch
+    - master
   except:
-    - gh-pages # Do not ever build off gh-pages branch
+    - gh-pages
 
-before_script:
-  - npm install -g @angular/cli #install angular CLI
-
-script:
-  - echo "Building for PROD"
-  - ng build --prod --base-href=/financial-life/
-
-after_success:
-  - echo "Build SUCCESS"
-
-deploy:
-  provider: pages
-  skip-cleanup: true
-  github-token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-  keep-history: true
-  on:
-    branch: master
-  local_dir: dist/financial-life/
-
-after_deploy:
-  - echo "Deployed to GH Pages"
-  #- node update-version.js
+jobs:
+  include:
+    - name: lint
+      script: ng lint
+    - name: deploy to GH Pages
+      script: ng build --prod --base-href=/financial-life/
+      deploy:
+      - provider: pages
+        skip-cleanup: true
+        github-token: $GITHUB_TOKEN
+        keep-history: true
+        on:
+          branch: master
+        local_dir: dist/financial-life/
+        after_deploy: echo "Deployed to GH Pages"

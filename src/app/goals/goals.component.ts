@@ -45,68 +45,68 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   payoffError: string;
 
-  editMode: Boolean = false;
+  editMode: boolean = false;
   editId: string;
-  isLoading: Boolean = false;
+  isLoading: boolean = false;
 
   // db calls
   assetsRef = this.dbs.getAssetsRef();
   liabilitiesRef = this.dbs.getLiabilitiesRef();
   goalsRef = this.dbs.getGoalsRef();
 
-  compDest: Subject<any> = new Subject;
+  compDest: Subject<any> = new Subject<any>();
 
   constructor(private dbs: FirebaseService, private snackbarService: SnackbarServiceService, public dialog: MatDialog) { }
 
   ngOnInit(): void {
     this.isLoading = true;
     // Get all the assets from the db
-    this.assetsRef.orderBy("name").onSnapshot((res) => {
+    this.assetsRef.orderBy('name').onSnapshot(res => {
       this.assets = []; // clear the old asset array
-      res.forEach((asset) => {
-        let newAsset = asset.data() as Asset;
+      res.forEach(asset => {
+        const newAsset = asset.data() as Asset;
         newAsset.id = asset.id;
         this.assets.push(newAsset);
       });
-    }, (error) => {
-      this.snackbarService.showFailureSnackbar("Error Fetching Assets");
+    }, () => {
+      this.snackbarService.showFailureSnackbar('Error Fetching Assets');
     });
 
     // Get all the liabilties from the db
-    this.liabilitiesRef.orderBy("name").onSnapshot((res) => {
+    this.liabilitiesRef.orderBy('name').onSnapshot(res => {
       this.liabilities = []; // clear the old liabilities array
-      res.forEach((liability) => {
-        let newLiability = liability.data() as Liability;
+      res.forEach(liability => {
+        const newLiability = liability.data() as Liability;
         newLiability.id = liability.id;
         this.liabilities.push(newLiability);
       });
-    }, (error) => {
-      this.snackbarService.showFailureSnackbar("Error Fetching Liabilities");
+    }, () => {
+      this.snackbarService.showFailureSnackbar('Error Fetching Liabilities');
     });
 
     // Get all the goals from the db
-    this.goalsRef.orderBy("category").orderBy("source").onSnapshot((res) => {
+    this.goalsRef.orderBy('category').orderBy('source').onSnapshot(res => {
       this.goals = []; // clear the old goals array
-      res.forEach((goal) => {
-        let newGoal = goal.data() as Goal;
+      res.forEach(goal => {
+        const newGoal = goal.data() as Goal;
         newGoal.id = goal.id;
         this.goals.push(newGoal);
       });
       this.isLoading = false;
-    }, (error) => {
-      this.snackbarService.showFailureSnackbar("Error Fetching Goals");
+    }, () => {
+      this.snackbarService.showFailureSnackbar('Error Fetching Goals');
       this.isLoading = false;
     });
 
     this.newGoalForm.get('category').valueChanges.pipe(
       takeUntil(this.compDest)
-    ).subscribe((newCategory) => {
+    ).subscribe(newCategory => {
       this.onCategory(newCategory);
     });
 
     this.newGoalForm.get('source').valueChanges.pipe(
       takeUntil(this.compDest)
-    ).subscribe((newSource) => {
+    ).subscribe(newSource => {
       this.onSource(newSource);
     });
 
@@ -114,7 +114,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
       takeUntil(this.compDest),
       debounceTime(1500),
       distinctUntilChanged()
-    ).subscribe((newAmount) => {
+    ).subscribe(newAmount => {
       this.onAmount(newAmount);
     });
   }
@@ -135,12 +135,12 @@ export class GoalsComponent implements OnInit, OnDestroy {
   }
 
   submitForm(): void {
-    let goal: Goal = this.newGoalForm.value;
+    const goal: Goal = this.newGoalForm.value;
     goal.lastModified = new Date().getTime();
     if (goal.completionDate) {
       goal.completionDate = goal.completionDate.getTime();
     } else {
-      goal.completionDate = "";
+      goal.completionDate = '';
     }
     // Link the associated asset or liability via it's id as a FK in the goal
     if (goal.category === 'Savings' && this.selectedAsset) {
@@ -175,13 +175,13 @@ export class GoalsComponent implements OnInit, OnDestroy {
       // Set sources to asset names
       this.assets.forEach(asset => {
         this.sources.push(asset.name);
-      })
+      });
     } else if (this.selectedCategory === 'Debt Payoff') {
       this.sources = []; // Clear the old array
       // Set sources to liability names
       this.liabilities.forEach(liability => {
         this.sources.push(liability.name);
-      })
+      });
     }
   }
 
@@ -190,7 +190,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
     if (this.selectedCategory === 'Debt Payoff') {
       // Set the completion date to the due date of the debt
       this.selectedLiability = this.liabilities.find(element => element.name === this.selectedSource);
-      if (this.selectedLiability.dueDate !== "") {
+      if (this.selectedLiability.dueDate !== '') {
         this.newGoalForm.patchValue({
           completionDate: new Date(this.selectedLiability.dueDate)
         });
@@ -203,19 +203,19 @@ export class GoalsComponent implements OnInit, OnDestroy {
 
   onAmount(amount: number): void {
     if (this.newGoalForm.valid && this.newGoalForm.get('completionDate').value) {
-      let completionDate = moment(this.newGoalForm.get('completionDate').value);
-      let today = moment();
-      let monthsReq = this.selectedLiability.balance / amount;
-      let monthsLeft = completionDate.diff(today, 'months');
+      const completionDate = moment(this.newGoalForm.get('completionDate').value);
+      const today = moment();
+      const monthsReq = this.selectedLiability.balance / amount;
+      const monthsLeft = completionDate.diff(today, 'months');
 
       if (monthsReq > monthsLeft) {
-        let monthsNeeded = (monthsReq - monthsLeft).toFixed(0);
-        let amountNeeded = (this.selectedLiability.balance / monthsLeft).toFixed(2);
-        this.payoffError = "The debt will not be paid off by the due date with the monthly amount specified. " +
-          "At the current monthly amount, an additional " + monthsNeeded + " months are required. " +
-          "Alternatively, the debt can be paid in time by paying more than $" + amountNeeded + " per month.";
+        const monthsNeeded = (monthsReq - monthsLeft).toFixed(0);
+        const amountNeeded = (this.selectedLiability.balance / monthsLeft).toFixed(2);
+        this.payoffError = 'The debt will not be paid off by the due date with the monthly amount specified. ' +
+          'At the current monthly amount, an additional ' + monthsNeeded + ' months are required. ' +
+          'Alternatively, the debt can be paid in time by paying more than $' + amountNeeded + ' per month.';
       } else {
-        this.payoffError = "";
+        this.payoffError = '';
       }
     }
   }
@@ -236,7 +236,7 @@ export class GoalsComponent implements OnInit, OnDestroy {
       category: goal.category,
       source: goal.source,
       amount: goal.amount,
-      completionDate: completionDate
+      completionDate
     });
   }
 
@@ -258,16 +258,14 @@ export class GoalsComponent implements OnInit, OnDestroy {
     let balance: number;
     // Depending on the type, use the fk to get the balance
     if (type === 'asset') {
-      let asset: Asset;
-      asset = this.assets.find(element => element.id === id);
+      const asset: Asset = this.assets.find(element => element.id === id);
       balance = asset.value;
     } else if (type === 'liability') {
-      let liability: Liability;
-      liability = this.liabilities.find(element => element.id === id);
+      const liability: Liability = this.liabilities.find(element => element.id === id);
       balance = liability.balance;
     } else {
       balance = null;
-      console.error("Invalid type");
+      this.snackbarService.showFailureSnackbar('Invalid type. Could not get balance.');
     }
     return balance;
   }

@@ -29,54 +29,54 @@ export class FirebaseService {
     return this.db.collection('assets').doc(id).collection('historical');
   }
 
-  addAsset(asset: Asset) {
+  addAsset(asset: Asset): void {
     let id: string;
     // Add the asset, then get the id back
-    this.getAssetsRef().add(asset).then((docRef) => {
+    this.getAssetsRef().add(asset).then(docRef => {
       id = docRef.id;
       // add a copy to the historical asset information
       this.getHistoricalAssetsRef(id).add(asset);
-      this.snackbarService.showSuccessSnackbar("Asset Successfully Created");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Creating Asset");
+      this.snackbarService.showSuccessSnackbar('Asset Successfully Created');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Creating Asset');
     });
   }
 
-  updateAsset(asset: Asset, id: string) {
+  updateAsset(asset: Asset, id: string): void {
     // update the current asset information
-    this.getAssetsRef().doc(id).set(asset).then((res) => {
-      this.snackbarService.showSuccessSnackbar("Asset Successfully Updated");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Updating Asset");
+    this.getAssetsRef().doc(id).set(asset).then(() => {
+      this.snackbarService.showSuccessSnackbar('Asset Successfully Updated');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Updating Asset');
     });
     // add a copy to the historical asset information
-    this.getHistoricalAssetsRef(id).add(asset).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Updating Asset History");
+    this.getHistoricalAssetsRef(id).add(asset).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Updating Asset History');
     });
   }
 
-  deleteAsset(id: string) {
+  deleteAsset(id: string): void {
     // Delete any associated goals
-    this.getGoalsRef().where("assetId", "==", id).get().then((res) => {
-      res.forEach((goal) => {
+    this.getGoalsRef().where('assetId', '==', id).get().then(res => {
+      res.forEach(goal => {
         this.getGoalsRef().doc(goal.id).delete();
       });
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Linked Goal(s)");
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Linked Goal(s)');
     });
     // Get all historical entries and delete them
-    this.getHistoricalAssetsRef(id).get().then((res) => {
-      res.forEach((entry) => {
+    this.getHistoricalAssetsRef(id).get().then(res => {
+      res.forEach(entry => {
         this.getHistoricalAssetsRef(id).doc(entry.id).delete();
       });
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Asset History");
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Asset History');
     });
     // Delete the asset itself
-    this.getAssetsRef().doc(id).delete().then((res) => {
-      this.snackbarService.showSuccessSnackbar("Asset Successfully Deleted");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Asset");
+    this.getAssetsRef().doc(id).delete().then(() => {
+      this.snackbarService.showSuccessSnackbar('Asset Successfully Deleted');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Asset');
     });
   }
 
@@ -88,53 +88,53 @@ export class FirebaseService {
     return this.db.collection('liabilities').doc(id).collection('historical');
   }
 
-  addLiability(liability: Liability) {
+  addLiability(liability: Liability): void {
     let id: string;
-    this.getLiabilitiesRef().add(liability).then((docRef) => {
+    this.getLiabilitiesRef().add(liability).then(docRef => {
       id = docRef.id;
       // add a copy to the historical liability information
       this.getHistoricalLiabilitiesRef(id).add(liability);
-      this.snackbarService.showSuccessSnackbar("Liability Successfully Created");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Creating Liability");
+      this.snackbarService.showSuccessSnackbar('Liability Successfully Created');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Creating Liability');
     });
   }
 
-  updateLiability(liability: Liability, id: string) {
+  updateLiability(liability: Liability, id: string): void {
     // update the current asset information
-    this.getLiabilitiesRef().doc(id).set(liability).then((res) => {
-      this.snackbarService.showSuccessSnackbar("Liability Successfully Updated");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Updating Liability");
+    this.getLiabilitiesRef().doc(id).set(liability).then(() => {
+      this.snackbarService.showSuccessSnackbar('Liability Successfully Updated');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Updating Liability');
     });
     // add a copy to the historical liability information
-    this.getHistoricalLiabilitiesRef(id).add(liability).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Updating Liability History");
+    this.getHistoricalLiabilitiesRef(id).add(liability).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Updating Liability History');
     });
   }
 
-  deleteLiability(id: string) {
+  deleteLiability(id: string): void {
     // Delete any associated goals
-    this.getGoalsRef().where("liabilityId", "==", id).get().then((res) => {
-      res.forEach((goal) => {
+    this.getGoalsRef().where('liabilityId', '==', id).get().then(res => {
+      res.forEach(goal => {
         this.getGoalsRef().doc(goal.id).delete();
       });
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Linked Goal(s)");
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Linked Goal(s)');
     });
     // Get all historical entries and delete them
-    this.getHistoricalLiabilitiesRef(id).get().then((res) => {
-      res.forEach((entry) => {
+    this.getHistoricalLiabilitiesRef(id).get().then(res => {
+      res.forEach(entry => {
         this.getHistoricalLiabilitiesRef(id).doc(entry.id).delete();
       });
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Liability History");
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Liability History');
     });
     // Delete the liability itself
-    this.getLiabilitiesRef().doc(id).delete().then((res) => {
-      this.snackbarService.showSuccessSnackbar("Liability Successfully Deleted");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Liability");
+    this.getLiabilitiesRef().doc(id).delete().then(() => {
+      this.snackbarService.showSuccessSnackbar('Liability Successfully Deleted');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Liability');
     });
   }
 
@@ -142,28 +142,27 @@ export class FirebaseService {
     return this.db.collection('goals');
   }
 
-  addGoal(goal: Goal) {
-    this.getGoalsRef().add(goal).then((res) => {
-      this.snackbarService.showSuccessSnackbar("Goal Successfully Created");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Creating Goal");
+  addGoal(goal: Goal): void {
+    this.getGoalsRef().add(goal).then(() => {
+      this.snackbarService.showSuccessSnackbar('Goal Successfully Created');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Creating Goal');
     });
   }
 
-  updateGoal(goal: Goal, id: string) {
-    this.getGoalsRef().doc(id).set(goal).then((res) => {
-      this.snackbarService.showSuccessSnackbar("Goal Successfully Updated");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Updating Goal");
+  updateGoal(goal: Goal, id: string): void {
+    this.getGoalsRef().doc(id).set(goal).then(() => {
+      this.snackbarService.showSuccessSnackbar('Goal Successfully Updated');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Updating Goal');
     });
   }
 
-  deleteGoal(id: string) {
-    this.getGoalsRef().doc(id).delete().then((res) => {
-      this.snackbarService.showSuccessSnackbar("Goal Successfully Deleted");
-    }).catch((error) => {
-      this.snackbarService.showFailureSnackbar("Error Deleting Goal");
+  deleteGoal(id: string): void {
+    this.getGoalsRef().doc(id).delete().then(() => {
+      this.snackbarService.showSuccessSnackbar('Goal Successfully Deleted');
+    }).catch(() => {
+      this.snackbarService.showFailureSnackbar('Error Deleting Goal');
     });
   }
-
 }

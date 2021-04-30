@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit} from '@angular/core';
+import { Component, Input, OnChanges } from '@angular/core';
 import { CurrencyPipe } from '@angular/common';
 
 import * as moment from 'moment';
@@ -15,7 +15,7 @@ import { Liability } from 'src/app/liabilities/liability.model';
   templateUrl: './graph.component.html',
   styleUrls: ['./graph.component.css']
 })
-export class GraphComponent implements OnInit, OnChanges {
+export class GraphComponent implements OnChanges {
   @Input()
   goal: Goal;
 
@@ -29,12 +29,12 @@ export class GraphComponent implements OnInit, OnChanges {
           // Include a dollar sign in the ticks
           callback: function(value) {
             return this.currencyPipe.transform(value);
-        }.bind(this)
+          }.bind(this)
         }
       }]
     },
     tooltips: {
-      mode: "nearest",
+      mode: 'nearest',
       intersect: false,
       callbacks: {
         // Convert value in tooltip to currency
@@ -45,7 +45,7 @@ export class GraphComponent implements OnInit, OnChanges {
           }
           label += this.currencyPipe.transform(tooltipItem.yLabel);
           return label;
-      }.bind(this)
+        }.bind(this)
       }
     }
   };
@@ -63,46 +63,42 @@ export class GraphComponent implements OnInit, OnChanges {
 
   chartData: ChartDataSets[];
 
+  constructor(private dbs: FirebaseService, private currencyPipe: CurrencyPipe) { }
+
   ngOnChanges(): void {
     this.chartLabels = [];
     this.chartData = [];
-    let historicalValues: number[] = [];
+    const historicalValues: number[] = [];
     if(this.goal.assetId) {
-      this.dbs.db.collection('assets').doc(this.goal.assetId).collection('historical').orderBy("lastModified").get().then((res) => {
-        res.forEach((entry) => {
-          let historicalEntry = entry.data() as Asset;
+      this.dbs.db.collection('assets').doc(this.goal.assetId).collection('historical').orderBy('lastModified').get().then(res => {
+        res.forEach(entry => {
+          const historicalEntry = entry.data() as Asset;
           // Set the Last Modified Date to the X axis label
-          let lastModified = moment(historicalEntry.lastModified).format('YYYY-MM-DD');
+          const lastModified = moment(historicalEntry.lastModified).format('YYYY-MM-DD');
           this.chartLabels.push(lastModified);
           // Set the balance to the Y axis data
           historicalValues.push(historicalEntry.value);
         });
         this.chartData = [{
           data: historicalValues,
-          label: this.goal.source + " value"
-        }]
+          label: this.goal.source + ' value'
+        }];
       });
     } else if (this.goal.liabilityId) {
-      this.dbs.db.collection('liabilities').doc(this.goal.liabilityId).collection('historical').orderBy("lastModified").get().then((res) => {
-        res.forEach((entry) => {
-          let historicalEntry = entry.data() as Liability;
+      this.dbs.db.collection('liabilities').doc(this.goal.liabilityId).collection('historical').orderBy('lastModified').get().then(res => {
+        res.forEach(entry => {
+          const historicalEntry = entry.data() as Liability;
           // Set the Last Modified Date to the X axis label
-          let lastModified = moment(historicalEntry.lastModified).format('YYYY-MM-DD');
+          const lastModified = moment(historicalEntry.lastModified).format('YYYY-MM-DD');
           this.chartLabels.push(lastModified);
           // Set the balance to the Y axis data
           historicalValues.push(historicalEntry.balance);
         });
         this.chartData = [{
           data: historicalValues,
-          label: this.goal.source + " balance due"
-        }]
+          label: this.goal.source + ' balance due'
+        }];
       });
     }
   }
-
-  constructor(private dbs: FirebaseService, private currencyPipe: CurrencyPipe) { }
-
-  ngOnInit(): void {
-  }
-
 }

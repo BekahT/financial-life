@@ -6,10 +6,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  Arr = Array;
+  arr = Array;
   panes = 1;
+  title = 'financial-life';
 
-  onEmitPanes(selectedPanes: number) {
+  onEmitPanes(selectedPanes: number): void {
     this.panes = selectedPanes;
   }
 }

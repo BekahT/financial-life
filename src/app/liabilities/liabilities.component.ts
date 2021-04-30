@@ -22,9 +22,9 @@ export class LiabilitiesComponent implements OnInit {
   dataSource: MatTableDataSource<Liability>;
   categories: string[] = ['Mortgage', 'Auto Loan', 'Student Loan', 'Credit Card', 'Other'];
   liabilities: Liability[] = [];
-  editMode: Boolean = false;
+  editMode: boolean = false;
   editId: string;
-  isLoading: Boolean = false;
+  isLoading: boolean = false;
 
   liabilitiesRef = this.dbs.getLiabilitiesRef();
 
@@ -41,18 +41,18 @@ export class LiabilitiesComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.liabilitiesRef.orderBy("category").orderBy("name").onSnapshot((res) => {
+    this.liabilitiesRef.orderBy('category').orderBy('name').onSnapshot(res => {
       this.liabilities = []; // clear the old liabilities array
-      res.forEach((liability) => {
-        let newLiability = liability.data() as Liability;
+      res.forEach(liability => {
+        const newLiability = liability.data() as Liability;
         newLiability.id = liability.id;
         this.liabilities.push(newLiability);
       });
       this.dataSource = new MatTableDataSource(this.liabilities);
       this.dataSource.sort = this.sort;
       this.isLoading = false;
-    }, (error) => {
-      this.snackbarService.showFailureSnackbar("Error Fetching Liabilities");
+    }, () => {
+      this.snackbarService.showFailureSnackbar('Error Fetching Liabilities');
       this.isLoading = false;
     });
   }
@@ -62,16 +62,16 @@ export class LiabilitiesComponent implements OnInit {
   }
 
   submitForm(): void {
-    let liability: Liability = this.newLiabilityForm.value;
+    const liability: Liability = this.newLiabilityForm.value;
 
     if (liability.dueDate) {
       liability.dueDate = liability.dueDate.getTime();
     } else {
-      liability.dueDate = "";
+      liability.dueDate = '';
     }
 
     if (liability.note === undefined || null) {
-      liability.note = "";
+      liability.note = '';
     }
 
     // Always update the modified date
@@ -110,7 +110,7 @@ export class LiabilitiesComponent implements OnInit {
       name: liability.name,
       balance: liability.balance,
       category: liability.category,
-      dueDate: dueDate,
+      dueDate,
       interestRate: liability.interestRate,
       note: liability.note
     });

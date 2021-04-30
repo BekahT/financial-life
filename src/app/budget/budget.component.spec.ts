@@ -10,7 +10,7 @@ describe('BudgetComponent', () => {
     TestBed.configureTestingModule({
       declarations: [ BudgetComponent ]
     })
-    .compileComponents();
+      .compileComponents();
   }));
 
   beforeEach(() => {

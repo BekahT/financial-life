@@ -22,9 +22,9 @@ export class AssetsComponent implements OnInit {
   dataSource: MatTableDataSource<Asset>;
   categories: string[] = ['Savings', 'Checking', 'CD', '401k', 'HSA', 'Other'];
   assets: Asset[] = [];
-  editMode: Boolean = false;
+  editMode: boolean = false;
   editId: string;
-  isLoading: Boolean = false;
+  isLoading: boolean = false;
 
   assetsRef = this.dbs.getAssetsRef();
 
@@ -39,18 +39,18 @@ export class AssetsComponent implements OnInit {
 
   ngOnInit(): void {
     this.isLoading = true;
-    this.assetsRef.orderBy("category").orderBy("name").onSnapshot((res) => {
+    this.assetsRef.orderBy('category').orderBy('name').onSnapshot(res => {
       this.assets = []; // clear the old asset array
-      res.forEach((asset) => {
-        let newAsset = asset.data() as Asset;
+      res.forEach(asset => {
+        const newAsset = asset.data() as Asset;
         newAsset.id = asset.id;
         this.assets.push(newAsset);
       });
       this.dataSource = new MatTableDataSource(this.assets);
       this.dataSource.sort = this.sort;
       this.isLoading = false;
-    }, (error) => {
-      this.snackbarService.showFailureSnackbar("Error Fetching Assets");
+    }, () => {
+      this.snackbarService.showFailureSnackbar('Error Fetching Assets');
       this.isLoading = false;
     });
   }
@@ -60,10 +60,10 @@ export class AssetsComponent implements OnInit {
   }
 
   submitForm(): void {
-    let asset: Asset = this.newAssetForm.value;
+    const asset: Asset = this.newAssetForm.value;
     // Firebase doesn't take null/undefined, so set empty notes to empty string
     if (asset.note === undefined || null) {
-      asset.note = "";
+      asset.note = '';
     }
 
     // Always update the modified date
