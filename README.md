@@ -4,6 +4,6 @@
 
 My Financial Life is a dashboard for managing personal finances, including financial goals, monthly budget, savings tracking, and debt payoff tracking.
 
-Dev https://bekaht.github.io/financial-life/
+Staging https://bekaht.github.io/financial-life/
 
 Prod https://myfinanciallife.web.app/ 
